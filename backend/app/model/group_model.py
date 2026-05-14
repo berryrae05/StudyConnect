@@ -8,12 +8,6 @@ from app.database import Base
 
 
 class Group(Base):
-    """
-    A group that users can join.
-
-    `memberships` is the other side of the link: each Membership row ties one
-    user to this group.
-    """
 
     __tablename__ = "groups"
 
