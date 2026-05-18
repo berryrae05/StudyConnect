@@ -1,1 +1,85 @@
-Generic single-database configuration.
+# Alembic Migration Guide
+
+This project uses Alembic for database migration.
+
+## First Time Setup
+
+### 1. Pull latest changes
+
+```bash
+git pull origin main
+```
+
+### 2. Activate virtual environment
+```bash
+.venv\Scripts\Activate
+```
+
+### 3. Ensure MySQL server is running
+### 4. Ensure .env is configured and is in the backend folder
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=studyconnect_db
+```
+
+### 5. Ensure that you are in the backend folder
+
+```bash
+cd backend
+```
+
+### 6. Apply database migration
+
+```bash
+alembic upgrade head
+```
+This will create all required tables:
+* users
+* groups
+* memberships
+* alembic_version
+
+### 7. When Models Change
+Only the developer responsible for database changes should generate migrations
+
+Generate migration:
+```bash
+alembic revision --autogenerate -m "description"
+```
+
+Apply migration:
+```bash
+alembic upgrade head
+```
+
+### 8. Check Migration Version
+
+```bash
+alembic current
+```
+
+### 9. View Migration Version
+
+```bash
+alembic history
+```
+
+### 10. Rollback
+Rollback one migration:
+
+```bash
+alembic downgrade -1
+```
+
+### Important
+* Do not generate migrations unless working on database changes
+* Pull latest changes before runnning migrations
+* Run:
+```bash
+alembic upgrade head
+```
+to sync your database with latest schema.
