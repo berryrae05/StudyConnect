@@ -11,3 +11,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Base class for models
 Base = declarative_base()
+
+# Import models so SQLAlchemy registers relationships
+from app.users.model import User
+from app.groups.model import Group
+from app.memberships.model import Membership
