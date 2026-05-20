@@ -5,6 +5,8 @@ from sqlalchemy import text
 from app.database import engine
 from contextlib import asynccontextmanager
 
+from app.auth.routes import (router as auth_router)
+
 # Tests if MySQL connection works
 def test_database_connection():
 
@@ -35,6 +37,13 @@ app = FastAPI(lifespan=lifespan)
 
 # Middleware
 setup_cors(app)
+
+# Authentication endpoints
+app.include_router(auth_router)
+
+# Future routers:
+# app.include_router(groups_router)
+# app.include_router(memberships_router)
 
 @app.get("/")
 def home():
