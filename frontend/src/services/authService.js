@@ -5,6 +5,15 @@ const API = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 });
 
+// Add a request interceptor to include the access token in the Authorization header for all requests
+API.interceptors.request.use((config) => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 // SIGNUP
 // note: full_name not fullName — must match Python schema exactly
 export const signup = async ({ fullName, email, password, gender }) => {
@@ -26,10 +35,21 @@ export const login = async ({ email, password }) => {
     return response.data;
 };
 
-// FORGOT PASSWORD
-export const forgotPassword = async ({ email }) => {
-    const response = await API.post("/auth/forgot-password", {
-        email,
-    });
+//VERIFY EMAIL
+export const verifyEmail = async ({ token }) => {
+    const response = await API.get(`/auth/verify-email?token=${token}`);
     return response.data;
+};
+
+// GET CURRENT USER
+// Returns logged in user data — requires JWT token
+export const getCurrentUser = async () => {
+  const response = await API.get("/auth/me");
+  return response.data;
+};
+
+// LOGOUT
+// Clears the token from localStorage
+export const logout = () => {
+  localStorage.removeItem("access_token");
 };

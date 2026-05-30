@@ -8,6 +8,7 @@ import BrowsePage from "./pages/BrowsePage.jsx";
 import CreateGroupPage from "./pages/CreateGroupPage.jsx";
 import GroupDetailPage from "./pages/GroupDetailPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/groups/create" element={<CreateGroupPage />} />
         <Route path="/groups/:id" element={<GroupDetailPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
       </Routes>
     </BrowserRouter>
   );

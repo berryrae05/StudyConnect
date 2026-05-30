@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/ui/Input";
 import "./SignupPage.css";
 import { signup } from "../services/authService";
+import { validatePassword } from "../utils/validators";
 
 export default function SignupPage() {
 
@@ -68,71 +69,82 @@ export default function SignupPage() {
     if (!password) {
       newErrors.password = "Password is required";
       valid = false;
-    } else if (password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-      valid = false;
-    }
+    } else {
+      const passwordErrors = validatePassword(password);
+      if (passwordErrors.length > 0) {
+        newErrors.password = passwordErrors.join(", ");
+        valid = false;
+      }
 
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-      valid = false;
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-      valid = false;
-    }
+      if (!confirmPassword) {
+        newErrors.confirmPassword = "Please confirm your password";
+        valid = false;
+      } else if (password !== confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+        valid = false;
+      }
 
-    if (!agreed) {
-      newErrors.agreed = "You must agree to the terms to continue";
-      valid = false;
-    }
+      if (!agreed) {
+        newErrors.agreed = "You must agree to the terms to continue";
+        valid = false;
+      }
 
-    //Update all error states in one call
-    setErrors(newErrors);
-    return valid;
-  };
+      //Update all error states in one call
+      setErrors(newErrors);
+      return valid;
+    };
 
-  //PASSWORD STRENGTH
-  const getStrength = () => {
-    if (password.length === 0) return 0;
-    if (password.length < 6) return 1;
-    if (password.length < 8) return 2;
-    if (password.length < 12) return 3;
-    return 4;
-  };
+    //PASSWORD STRENGTH
+    const getStrength = () => {
+      if (password.length === 0) return 0;
+      const errors = validatePassword(password);
+      if (password.length >= 4) return 1;
+      if (password.length === 3) return 2;
+      if (password.length === 2) return 3;
+      if (password.length === 1) return 3;
+      return 4;
+    };
 
-  const strengthLabel = ["", "Too short", "Weak", "Good", "Strong"];
-  const strengthColor = ["", "#E24B4A", "#EF9F27", "#4CAF82", "#1A5C3A"];
+    const strengthLabel = ["", "Too short", "Weak", "Good", "Strong"];
+    const strengthColor = ["", "#E24B4A", "#EF9F27", "#4CAF82", "#1A5C3A"];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // stops the page from refreshing
+    const handleSubmit = async (e) => {
+      e.preventDefault(); // stops the page from refreshing
+      if (!validate()) return; // stop if any field has an error
+      setLoading(true);
 
-    if (!validate()) return; // stop if any field has an error
+      try {
+        //BUILD THE EMAIL from student number + domain
+        const email = `${studentNumber.trim()}@myuwc.ac.za`;
 
-    setLoading(true);
+        const response = await signup({
+          fullName,      // authService converts this to full_name for Python
+          email,
+          password,
+          gender,
+        });
 
-    try {
-      //BUILD THE EMAIL from student number + domain
-      const email = `${studentNumber.trim()}@myuwc.ac.za`;
+        console.log(response.message);
 
-      const response = await signup({
-        fullName,      // authService converts this to full_name for Python
-        email,
-        password,
-        gender,
-      });
+        // Redirect to verify email page after successful signup
+        navigate("/verify-email");
 
-      console.log("Signup success:", response);
+      } catch (err) {
+        const detail = err.response?.data?.detail;
 
-      // Redirect to verify email page after successful signup
-      navigate("/verify-email");
+        let message = "Signup failed. Please try again.";
 
-    } catch (err) {
-      const message = err.response?.data?.detail || "Signup failed. Please try again."
-      setErrors((prev) => ({
-        ...prev,
-        studentNumber: message,
-      }));
-    } finally {
+        if (typeof detail === "string") {
+          message = detail;
+        } else if (Array.isArray(detail)) {
+          message = detail.map((d) => d.msg).join(", ");
+        }
+
+        setErrors((prev) => ({
+          ...prev,
+          studentNumber: message,
+        }));
+      } finally {
       // Always turn off loading whether it succeeded or failed
       setLoading(false);
     }
@@ -194,9 +206,10 @@ export default function SignupPage() {
                 onChange={(e) => setGender(e.target.value)}
               >
                 <option value="">Select gender</option>
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-                <option value="other">Prefer not to say</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Nonbinary">Nonbinary</option>
+                <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
             {errors.gender && (
@@ -345,4 +358,4 @@ export default function SignupPage() {
       </div>
     </div>
   );
-}
+}}
