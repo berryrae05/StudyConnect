@@ -9,17 +9,30 @@ export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
+  // DEBUG: Log the full URL and the extracted token to verify it's working
+  console.log("Full URL:", window.location.href);
+  console.log("Token from URL:", token);
+
   const [status, setStatus] = useState("idle"); // idle | verifying | success | error
   const [message, setMessage] = useState("");
 
-  // REACT: If there is a token in the URL, verify it automatically
+  // If there is a token in the URL, verify it automatically
   useEffect(() => {
-    if (token) {
+    // Only attempt verification if we have a token and we're in the idle state
+    // (to prevent multiple calls if token changes)
+    if (token && status === "idle") {
       handleVerify(token);
     }
-  }, [token]);
+  }, [token]); // Only run when token changes
 
   const handleVerify = async (tkn) => {
+    // If no token found, show error immediately
+    if (!tkn || tkn === "undefined") {
+      setStatus("error");
+      setMessage("No verification token found. Please check your email link.");
+      return;
+    }
+    // Start verification process
     setStatus("verifying");
     try {
       const response = await verifyEmail(tkn);

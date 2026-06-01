@@ -21,11 +21,7 @@ export default function Input({
                 </label>
             )}
 
-            <div className={`
-        input-row 
-        ${error ? "input-row--error" : ""} 
-        ${disabled ? "input-row--disabled" : ""}
-        `}>
+            <div className={`input-row ${error ? "input-row--error" : ""} ${disabled ? "input-row--disabled" : ""}`}>
 
                 <input
                     className="input-field"
@@ -43,7 +39,17 @@ export default function Input({
                     <span className="input-suffix">{suffix}</span>
                 )}
             </div>
-            {error && hint && (
+
+            {/* Display error message if there is an error, otherwise display hint if it exists */}
+            {error && (
+                <p className="input-error" id="input-error" role="alert">
+                    <i className="ti ti-alert-circle" aria-hidden="true"></i>
+                    {error}
+                </p>
+            )}
+
+            {/* Only show hint if there is no error */}
+            {hint && !error && (
                 <p className="input-hint" id="input-hint">
                     {hint}
                 </p>

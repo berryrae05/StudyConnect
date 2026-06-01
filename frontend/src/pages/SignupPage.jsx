@@ -7,38 +7,32 @@ import { validatePassword } from "../utils/validators";
 
 export default function SignupPage() {
 
-  //One useState per form field tracks what the user types
   const [fullName, setFullName] = useState("");
-  const [studentNumber, setStudentNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  //Separate state for error messages per field. Empty string "" means no error.
   const [errors, setErrors] = useState({
     fullName: "",
-    studentNumber: "",
+    email: "",
     gender: "",
     password: "",
     confirmPassword: "",
     agreed: "",
   });
 
-  //Tracks loading state while the API call is in progress
-  //Disables the submit button so the user cannot double-submit
-  const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  //VALIDATION
-  //Runs before submit to checks all fields and returns true/false
+  // Validation
   const validate = () => {
     const newErrors = {
       fullName: "",
-      studentNumber: "",
+      email: "",
       gender: "",
       password: "",
       confirmPassword: "",
@@ -52,12 +46,11 @@ export default function SignupPage() {
       valid = false;
     }
 
-    //student number must be exactly 7 digits
-    if (!studentNumber.trim()) {
-      newErrors.studentNumber = "Student number is required";
+    if (!email.trim()) {
+      newErrors.email = "Email address is required";
       valid = false;
-    } else if (!/^\d{7}$/.test(studentNumber.trim())) {
-      newErrors.studentNumber = "Student number must be exactly 7 digits";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      newErrors.email = "Please enter a valid email address";
       valid = false;
     }
 
@@ -75,77 +68,74 @@ export default function SignupPage() {
         newErrors.password = passwordErrors.join(", ");
         valid = false;
       }
+    }
 
-      if (!confirmPassword) {
-        newErrors.confirmPassword = "Please confirm your password";
-        valid = false;
-      } else if (password !== confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-        valid = false;
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+      valid = false;
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+      valid = false;
+    }
+
+    if (!agreed) {
+      newErrors.agreed = "You must agree to the terms to continue";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const getStrength = () => {
+    if (password.length === 0) return 0;
+    const errors = validatePassword(password);
+    if (errors.length >= 4) return 1;
+    if (errors.length === 3) return 2;
+    if (errors.length === 2) return 3;
+    if (errors.length === 1) return 3;
+    return 4;
+  };
+
+  const strengthLabel = ["", "Too short", "Weak", "Good", "Strong"];
+  const strengthColor = ["", "#E24B4A", "#EF9F27", "#4CAF82", "#1A5C3A"];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setLoading(true);
+
+    try {
+
+      const response = await signup({
+        fullName,
+        email: email.trim(),
+        password,
+        gender,
+      });
+
+      console.log(response.message);
+      navigate("/auth/verify-email");
+
+    } catch (err) {
+
+      console.log("Full error:", err);
+      console.log("Response data:", err.response?.data);
+
+      const detail = err.response?.data?.detail;
+      let message = "Signup failed. Please try again.";
+
+      if (typeof detail === "string") {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail.map((d) => d.msg).join(", ");
       }
 
-      if (!agreed) {
-        newErrors.agreed = "You must agree to the terms to continue";
-        valid = false;
-      }
-
-      //Update all error states in one call
-      setErrors(newErrors);
-      return valid;
-    };
-
-    //PASSWORD STRENGTH
-    const getStrength = () => {
-      if (password.length === 0) return 0;
-      const errors = validatePassword(password);
-      if (password.length >= 4) return 1;
-      if (password.length === 3) return 2;
-      if (password.length === 2) return 3;
-      if (password.length === 1) return 3;
-      return 4;
-    };
-
-    const strengthLabel = ["", "Too short", "Weak", "Good", "Strong"];
-    const strengthColor = ["", "#E24B4A", "#EF9F27", "#4CAF82", "#1A5C3A"];
-
-    const handleSubmit = async (e) => {
-      e.preventDefault(); // stops the page from refreshing
-      if (!validate()) return; // stop if any field has an error
-      setLoading(true);
-
-      try {
-        //BUILD THE EMAIL from student number + domain
-        const email = `${studentNumber.trim()}@myuwc.ac.za`;
-
-        const response = await signup({
-          fullName,      // authService converts this to full_name for Python
-          email,
-          password,
-          gender,
-        });
-
-        console.log(response.message);
-
-        // Redirect to verify email page after successful signup
-        navigate("/verify-email");
-
-      } catch (err) {
-        const detail = err.response?.data?.detail;
-
-        let message = "Signup failed. Please try again.";
-
-        if (typeof detail === "string") {
-          message = detail;
-        } else if (Array.isArray(detail)) {
-          message = detail.map((d) => d.msg).join(", ");
-        }
-
-        setErrors((prev) => ({
-          ...prev,
-          studentNumber: message,
-        }));
-      } finally {
-      // Always turn off loading whether it succeeded or failed
+      setErrors((prev) => ({
+        ...prev,
+        email: message,
+      }));
+    } finally {
       setLoading(false);
     }
   };
@@ -153,7 +143,6 @@ export default function SignupPage() {
   return (
     <div className="auth-page">
 
-      {/* Brand */}
       <Link to="/" className="auth-brand">
         <div className="auth-logo-mark">
           <i className="ti ti-users" aria-hidden="true"></i>
@@ -161,39 +150,40 @@ export default function SignupPage() {
         <span className="auth-logo-txt">Study Connect</span>
       </Link>
 
-      {/* Card */}
       <div className="auth-card">
         <div className="auth-card-header">
           <h1 className="auth-title">Create your account</h1>
           <p className="auth-sub">Use your institution email to get started.</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
 
-          {/* Full name */}
           <Input
             label="Full name"
             placeholder="e.g. Firstname Lastname"
             value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              setErrors((prev) => ({ ...prev, fullName: "" }));
+            }}
             error={errors.fullName}
             required
           />
 
-          {/* Student number + email suffix */}
           <Input
-            label="Student email"
-            placeholder="e.g. 4514906"
-            value={studentNumber}
-            onChange={(e) => setStudentNumber(e.target.value)}
-            error={errors.studentNumber}
-            hint="Enter your 7-digit student number"
-            suffix="@myuwc.ac.za"
+            label="Email address"
+            type="email"
+            placeholder="e.g. studentnumber@institution.ac.za"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setErrors((prev) => ({ ...prev, email: "" }));
+            }}
+            error={errors.email}
+            hint="Enter your institution email address"
             required
           />
 
-          {/* Gender */}
           <div className="input-wrapper">
             <label className="input-label">
               Gender <span className="input-required">*</span>
@@ -203,7 +193,10 @@ export default function SignupPage() {
               <select
                 className="input-field input-select"
                 value={gender}
-                onChange={(e) => setGender(e.target.value)}
+                onChange={(e) => {
+                  setGender(e.target.value);
+                  setErrors((prev) => ({ ...prev, gender: "" }));
+                }}
               >
                 <option value="">Select gender</option>
                 <option value="Female">Female</option>
@@ -220,10 +213,8 @@ export default function SignupPage() {
             )}
           </div>
 
-          {/* Password row */}
           <div className="auth-row">
 
-            {/* Password */}
             <div className="input-wrapper">
               <label className="input-label">
                 Password <span className="input-required">*</span>
@@ -235,9 +226,11 @@ export default function SignupPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Min. 8 characters"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrors((prev) => ({ ...prev, password: "" }));
+                  }}
                 />
-                {/* toggles between showing and hiding password */}
                 <button
                   type="button"
                   className="input-eye"
@@ -247,7 +240,6 @@ export default function SignupPage() {
                   <i className={`ti ${showPassword ? "ti-eye-off" : "ti-eye"}`} aria-hidden="true"></i>
                 </button>
               </div>
-              {/* Password strength bar */}
               {password.length > 0 && (
                 <div className="strength-bar">
                   <div
@@ -272,7 +264,6 @@ export default function SignupPage() {
               )}
             </div>
 
-            {/* Confirm password */}
             <div className="input-wrapper">
               <label className="input-label">
                 Confirm password <span className="input-required">*</span>
@@ -284,7 +275,10 @@ export default function SignupPage() {
                   type={showConfirm ? "text" : "password"}
                   placeholder="Re-enter password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                  }}
                 />
                 <button
                   type="button"
@@ -305,7 +299,6 @@ export default function SignupPage() {
 
           </div>
 
-          {/* Terms checkbox */}
           <div className="auth-terms">
             <input
               type="checkbox"
@@ -325,7 +318,6 @@ export default function SignupPage() {
             </p>
           )}
 
-          {/* Submit button */}
           <button
             type="submit"
             className={`auth-submit ${loading ? "auth-submit--loading" : ""}`}
@@ -343,14 +335,12 @@ export default function SignupPage() {
 
         </form>
 
-        {/* Divider */}
         <div className="auth-divider">
           <hr />
           <span>already have an account?</span>
           <hr />
         </div>
 
-        {/* Link to login */}
         <Link to="/login" className="auth-submit auth-submit--outline">
           Log in instead
         </Link>
@@ -358,4 +348,5 @@ export default function SignupPage() {
       </div>
     </div>
   );
-}}
+
+}

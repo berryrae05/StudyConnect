@@ -15,10 +15,9 @@ API.interceptors.request.use((config) => {
 });
 
 // SIGNUP
-// note: full_name not fullName — must match Python schema exactly
 export const signup = async ({ fullName, email, password, gender }) => {
     const response = await API.post("/auth/signup", {
-        full_name: fullName,   // ← convert camelCase to snake_case here
+        full_name: fullName,
         email,
         password,
         gender,
@@ -36,7 +35,8 @@ export const login = async ({ email, password }) => {
 };
 
 //VERIFY EMAIL
-export const verifyEmail = async ({ token }) => {
+export const verifyEmail = async (token) => {
+
     const response = await API.get(`/auth/verify-email?token=${token}`);
     return response.data;
 };
