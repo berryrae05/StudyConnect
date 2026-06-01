@@ -1,18 +1,15 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config import settings
 
-#Database connection
 engine = create_engine(settings.DATABASE_URL, echo=True)
 
-#Session for database operations
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for models
 Base = declarative_base()
 
-# Import models so SQLAlchemy registers relationships
-from app.users.model import User
-from app.groups.model import Group
-from app.memberships.model import Membership
+# Register models so SQLAlchemy knows about relationships and Alembic sees metadata.
+from app.users.model import User  # noqa: E402, F401
+from app.groups.model import Group  # noqa: E402, F401
+from app.memberships.model import Membership  # noqa: E402, F401

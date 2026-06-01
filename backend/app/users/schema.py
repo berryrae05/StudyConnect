@@ -49,6 +49,11 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        return value.strip().lower()
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 

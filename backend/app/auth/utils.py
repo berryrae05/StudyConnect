@@ -20,12 +20,14 @@ def validate_email_domain(email: str):
         for domain in settings.ALLOWED_EMAIL_DOMAINS
     ]
 
-    # Validate
-    if(email_domain not in allowed_domains):
+    if not allowed_domains:
+        return
+
+    if email_domain not in allowed_domains:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail=("Email domain" "is not allowed")
-    )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email domain is not allowed",
+        )
 
 # Create email verification token
 def create_email_verification_token(email: str) -> str:

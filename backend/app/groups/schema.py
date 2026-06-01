@@ -8,14 +8,11 @@ from pydantic import BaseModel, ConfigDict, Field
 class GroupCreate(BaseModel):
     """Fields the client sends when creating a group."""
 
-    model_config = ConfigDict(from_attributes=True)
-
     module_code: str = Field(..., max_length=64)
     description: str | None = None
     location: str | None = Field(default=None, max_length=255)
     date_time: datetime | None = None
     max_members: int = Field(default=10, ge=1, le=500)
-    created_by: int
 
 
 class GroupResponse(BaseModel):

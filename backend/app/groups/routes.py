@@ -1,0 +1,47 @@
+"""HTTP routes for study groups."""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+
+from app.groups.schema import GroupCreate, GroupResponse
+from app.groups.service import create_group, delete_group, get_group, list_groups
+from app.shared.dependencies import get_current_user, get_db
+from app.users.model import User
+
+router = APIRouter(prefix="/groups", tags=["Groups"])
+
+DBDependency = Annotated[Session, Depends(get_db)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+@router.post("", response_model=GroupResponse, status_code=201)
+def create_study_group(
+    data: GroupCreate,
+    db: DBDependency,
+    current_user: CurrentUser,
+):
+    return create_group(data, current_user.id, db)
+
+
+@router.get("", response_model=list[GroupResponse])
+def get_groups(
+    db: DBDependency,
+    module_code: str | None = Query(default=None, max_length=64),
+):
+    return list_groups(db, module_code=module_code)
+
+
+@router.get("/{group_id}", response_model=GroupResponse)
+def get_study_group(group_id: int, db: DBDependency):
+    return get_group(group_id, db)
+
+
+@router.delete("/{group_id}", status_code=204)
+def delete_study_group(
+    group_id: int,
+    db: DBDependency,
+    current_user: CurrentUser,
+):
+    delete_group(group_id, current_user.id, db)

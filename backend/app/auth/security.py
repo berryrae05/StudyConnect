@@ -57,9 +57,11 @@ def verify_token(token: str):
 
         # Prevents email_verification token
         # from being used here
-        if(payload.get("type") != "access"):
-            print("Wrong token type")
-            return None
+        if payload.get("type") != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type",
+            )
 
         return payload
     

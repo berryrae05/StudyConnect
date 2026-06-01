@@ -28,6 +28,11 @@ def get_current_user(
 ):
     token = credentials.credentials
     payload = verify_token(token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        )
     user_id = payload.get("sub")
 
     if not user_id:

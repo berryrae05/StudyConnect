@@ -1,3 +1,4 @@
+
 from dotenv import load_dotenv
 from pathlib import Path
 import os
@@ -35,3 +36,4 @@ class Settings:
     FRONTEND_URL=os.getenv("FRONTEND_URL")
 
 settings = Settings()
+

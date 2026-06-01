@@ -6,14 +6,18 @@ from fastapi import HTTPException, status
 from app.users.model import User
 from app.users.schema import UserCreate, UserLogin
 from app.auth.security import (hash_password, verify_password, create_access_token)
-from app.auth.utils import (verify_email_verification_token, create_email_verification_token)
+from app.auth.utils import (
+    create_email_verification_token,
+    validate_email_domain,
+    verify_email_verification_token,
+)
 from app.auth.email import (send_verification_email)
 
 # Registers a new user
 async def register_user(user_data: UserCreate, db: Session):
 
-    # Normalise email
-    normalised_email = (user_data.email.strip().lower())
+    normalised_email = user_data.email.strip().lower()
+    validate_email_domain(normalised_email)
 
     # Check if email already exists
     existing_user = (
@@ -76,10 +80,10 @@ async def register_user(user_data: UserCreate, db: Session):
 # Logs a user into the system.
 def login_user(user_data: UserLogin, db: Session):
 
-    # Find user by email
+    normalised_email = user_data.email.strip().lower()
     user = (
         db.query(User)
-        .filter(User.email == user_data.email)
+        .filter(User.email == normalised_email)
         .first()
     )
 
