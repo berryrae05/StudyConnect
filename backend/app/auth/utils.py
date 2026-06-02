@@ -51,7 +51,7 @@ def verify_email_verification_token(token: str) -> str | None:
         payload = jwt.decode(
             token,
             settings.JWT_SECRET_KEY,
-            algorithms=settings.JWT_ALGORITHM
+            algorithms=[settings.JWT_ALGORITHM]
         )
 
         # Prevents login JWT
