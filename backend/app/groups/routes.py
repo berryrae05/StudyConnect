@@ -10,6 +10,9 @@ from app.groups.service import create_group, delete_group, get_group, list_group
 from app.shared.dependencies import get_current_user, get_db
 from app.users.model import User
 
+from datetime import date
+from fastapi import Query
+
 router = APIRouter(prefix="/groups", tags=["Groups"])
 
 DBDependency = Annotated[Session, Depends(get_db)]
@@ -29,8 +32,10 @@ def create_study_group(
 def get_groups(
     db: DBDependency,
     module_code: str | None = Query(default=None, max_length=64),
+    study_date: date | None = Query(default=None),
 ):
-    return list_groups(db, module_code=module_code)
+    result = list_groups(db, module_code=module_code, study_date=study_date)
+    return result
 
 
 @router.get("/{group_id}", response_model=GroupResponse)
@@ -45,3 +50,4 @@ def delete_study_group(
     current_user: CurrentUser,
 ):
     delete_group(group_id, current_user.id, db)
+

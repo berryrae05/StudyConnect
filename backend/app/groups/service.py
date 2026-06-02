@@ -2,10 +2,12 @@
 
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from datetime import date
 
 from app.groups.model import Group
 from app.groups.schema import GroupCreate
 from app.memberships.model import Membership
+from sqlalchemy import func
 
 
 def create_group(data: GroupCreate, creator_id: int, db: Session) -> Group:
@@ -23,11 +25,16 @@ def create_group(data: GroupCreate, creator_id: int, db: Session) -> Group:
     return group
 
 
-def list_groups(db: Session, module_code: str | None = None) -> list[Group]:
+def list_groups(db: Session, module_code: str = None, study_date: date = None):
     query = db.query(Group)
     if module_code:
         query = query.filter(Group.module_code == module_code)
-    return query.order_by(Group.created_at.desc()).all()
+    
+    if study_date:
+        from sqlalchemy import func
+        query = query.filter(func.date(Group.date_time) == study_date)
+    result = query.all()
+    return result
 
 
 def get_group(group_id: int, db: Session) -> Group:
