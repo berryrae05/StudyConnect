@@ -20,7 +20,7 @@ conf = ConnectionConfig(
     VALIDATE_CERTS=True,
 )
 
-async def send_verification_email(email: str, token: str):
+async def send_verification_email(email: str, token: str) -> bool:
     
     verification_link= (
         f"{settings.FRONTEND_URL}"
@@ -53,6 +53,38 @@ Study Connect Team
         await fm.send_message(message)
         return True
 
+    except Exception as e:
+        print(e)
+        return False
+    
+async def send_password_reset_email(email: str, token: str) -> bool:
+
+    reset_link = (
+        f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    )
+    message = MessageSchema(
+        subject="Reset Your Study Connect Password",
+        recipients=[email],
+        body=f"""
+Hello,
+
+We recieved a request to reset you Study Connect password.
+
+Click the link below to choose a new password (valid for 15 minutes):
+
+{reset_link}
+
+If you didn't request a password reset, you can safely ignore this email.
+Your password will not change.
+
+Study Connect Team
+""",
+        subtype="plain",
+    )
+    fm = FastMail(conf)
+    try:
+        await fm.send_message(message)
+        return True
     except Exception as e:
         print(e)
         return False
