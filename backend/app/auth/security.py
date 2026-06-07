@@ -1,5 +1,8 @@
 """ JWT security, password hashing, and token verification utilities"""
 
+import hashlib
+import secrets
+
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
@@ -22,7 +25,7 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-# Create JWT token
+# Access Token
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
 
@@ -39,20 +42,20 @@ def create_access_token(data: dict) -> str:
 
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.JWT_SECRET_KEY,
-        algorithm=settings.JWT_ALGORITHM
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
     )
 
     return encoded_jwt
 
 # Verify JWT token
-def verify_token(token: str):
+def verify_token(token: str, invalidate_before: datetime | None = None) -> dict:
     
     try:
         payload = jwt.decode(
             token,
-            settings.JWT_SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM]
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
         )
 
         # Prevents email_verification token
@@ -62,6 +65,17 @@ def verify_token(token: str):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token type",
             )
+        
+        # blacklisting check
+        if invalidate_before is not None:
+            iat = payload.get("iat")
+            if iat is not None:
+                token_issued_at = datetime.fromtimestamp(iat, tz=timezone.utc)
+                if token_issued_at < invalidate_before:
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Token has been invalidated. Please log in again"
+                    )
 
         return payload
     
@@ -72,3 +86,9 @@ def verify_token(token: str):
             detail="Invalid token"
         )
     
+# Refresh tokens
+def create_refresh_token() -> str:
+    return secrets.token_hex(32)
+
+def hash_token(raw_token: str) -> str:
+    return hashlib.sha256(raw_token.encode()).hexdigest()   

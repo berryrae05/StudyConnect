@@ -14,6 +14,20 @@ class User(Base):
     gender = Column(String(30), nullable=True,)
     is_verified= Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    verification_sent_at = Column(DateTime(timezone=True), nullable=True, default=None)
+
+    # Forgot-password cooldown
+    password_reset_sent_at = Column(DateTime(timezone=True), nullable=True, default=None)
+    
+    # Incremented on every wrong password; reset to 0 on successful login
+    failed_login_attempt = Column(Integer, nullable=False, default=0)
+
+    # When set, the account is locked until this UTC timestamp
+    # NULL means the account is not locked
+    locked_until = Column(DateTime(timezone=True), nullable=True, default=None)
+
+    # Feature 7: token blacklisting
+    invalidate_tokens_before = Column(DateTime(timezone=True), nullable=True, default=None,)
 
     #One user can join many groups
     memberships = relationship(
@@ -26,4 +40,19 @@ class User(Base):
     created_groups = relationship(
         "Group", 
         back_populates="creator"
+    )
+
+    refresh_tokens = relationship(
+        "RefreshToken",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    password_history = relationship(
+        "PasswordHistory",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="PasswordHistory.created_at.desc()", 
     )
