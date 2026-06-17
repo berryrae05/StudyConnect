@@ -1,0 +1,455 @@
+.dash-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 28px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* ── ROOT — full viewport height flex column ─────────────── */
+.dash-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* ── BODY — the two panel area below the topbar ─────────── */
+/* flex: 1 makes it fill the remaining height after the topbar.
+   overflow: hidden prevents the body itself from scrolling —
+   only the right panel scrolls. */
+.dash-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── LEFT PANEL ──────────────────────────────────────────── */
+/* Fixed 260px width, full height, does not scroll.
+   This is the key to the Claude-style layout. */
+.dash-left {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 10px 12px;
+  overflow: hidden;
+}
+
+/* User info block */
+.dash-user-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 14px;
+}
+
+.dash-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-user-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.dash-user-role {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Thin divider line */
+.dash-left-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0 4px 10px;
+}
+
+/* Navigation items */
+.dash-left-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.dash-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--r);
+  font-size: 14px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+}
+
+.dash-nav-item i {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.dash-nav-item span {
+  flex: 1;
+}
+
+.dash-nav-item:hover {
+  background: var(--color-primary-lt);
+  color: var(--color-primary);
+}
+
+/* Active nav item — solid background */
+.dash-nav-item--active {
+  background: var(--color-primary-lt);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Count badge on nav item e.g. number of requests */
+.dash-nav-count {
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Footer — logout button pinned to bottom */
+.dash-left-footer {
+  margin-top: auto;
+}
+
+.dash-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--r);
+  font-size: 14px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+  transition: color 0.12s, background 0.12s;
+}
+
+.dash-logout-btn i {
+  font-size: 18px;
+}
+
+.dash-logout-btn:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-lt);
+}
+
+/* ── RIGHT PANEL ─────────────────────────────────────────── */
+/* Fills remaining width. overflow-y: auto makes ONLY this
+   panel scroll — the left panel stays fixed. */
+.dash-right {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* ── SECTIONS ────────────────────────────────────────────── */
+.dash-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* scroll-margin-top accounts for topbar height so the section
+     lands in the right place when scrolled into view */
+  scroll-margin-top: 16px;
+}
+
+.dash-section-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-section-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Count badge next to section title */
+.dash-section-count {
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+/* ── ACTION BUTTON — "+ New group" ──────────────────────── */
+.dash-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: var(--r);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dash-action-btn:hover {
+  background: var(--color-primary-lt);
+  border-color: var(--color-primary-md);
+  color: var(--color-primary);
+}
+
+/* Text link — "Browse more", "Create your first group" */
+.dash-text-link {
+  font-size: 13px;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.dash-text-link:hover {
+  text-decoration: underline;
+}
+
+/* ── GROUP CARDS ─────────────────────────────────────────── */
+.dash-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: border-color 0.15s;
+}
+
+.dash-card:hover {
+  border-color: var(--color-primary-md);
+}
+
+.dash-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Module tag — small green pill e.g. "COS301" */
+.dash-module-tag {
+  background: var(--color-primary-lt);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+
+.dash-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.dash-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.dash-card-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dash-card-meta i {
+  font-size: 13px;
+}
+
+/* ── STATUS BADGES ───────────────────────────────────────── */
+.dash-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.dash-badge--open     { background: #E8F5E2; color: #1A6B2A; }
+.dash-badge--full     { background: var(--color-surface-2); color: var(--color-text-muted); }
+.dash-badge--pending  { background: #FEF3E6; color: #B45309; }
+.dash-badge--approved { background: #E8F5E2; color: #1A6B2A; }
+.dash-badge--rejected { background: var(--color-accent-lt); color: var(--color-accent); }
+
+/* ── REQUEST LIST ────────────────────────────────────────── */
+.dash-request-list {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.dash-request-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.12s;
+}
+
+.dash-request-row:last-child {
+  border-bottom: none;
+}
+
+.dash-request-row:hover {
+  background: var(--color-bg);
+}
+
+.dash-request-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-request-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.dash-request-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.dash-request-time {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.dash-request-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.dash-btn-accept,
+.dash-btn-reject {
+  padding: 6px 16px;
+  border-radius: var(--r);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.dash-btn-accept:hover {
+  background: var(--color-primary-lt);
+  border-color: var(--color-primary-md);
+  color: var(--color-primary);
+}
+
+.dash-btn-reject:hover {
+  background: var(--color-accent-lt);
+  border-color: #EFCFC4;
+  color: var(--color-accent);
+}
+
+/* ── EMPTY STATES ────────────────────────────────────────── */
+.dash-empty {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dash-left {
+    display: none;
+  }
+
+  .dash-right {
+    padding: 20px 16px;
+  }
+}

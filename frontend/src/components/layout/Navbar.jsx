@@ -2,6 +2,7 @@
 // Reusable component - import this into any page that needs it.
 
 import { useNavigate, Link } from "react-router-dom";
+import ThemeToggle from "../ui/ThemeToggle";
 import "./Navbar.css";
 
 // Get initials from a name string, e.g., "Tshepo Mosia" -> "TM"
@@ -38,6 +39,7 @@ export default function Navbar({ user, onLogout, activeLink }) {
                 >
                     Browse
                 </Link>
+
                 <Link
                     to="/dashboard"
                     className={`nav-link ${activeLink === "dashboard" ? "nav-link--active" : ""}`}
@@ -47,7 +49,9 @@ export default function Navbar({ user, onLogout, activeLink }) {
             </nav>
 
             {/* Right: User info and logout */}
+            
             <div className="nav-actions">
+                <ThemeToggle />
                 <div className="user-avatar" title={user?.full_name || "Account"}>
                     {user ? getInitials(user.full_name) : "?"}
                 </div>
