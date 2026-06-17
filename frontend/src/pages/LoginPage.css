@@ -1,0 +1,485 @@
+/* ============================================
+   Study Connect — Login Page (Theme Ready)
+   ============================================ */
+
+/* Page background - Uses theme variables */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--login-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Study Connect brand link */
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  margin-bottom: 2rem;
+}
+
+.auth-brand span {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--brand-text, #ffffff);
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card - Uses theme background */
+.auth-card {
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--card-border, transparent);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--card-shadow, 0 20px 60px rgba(0, 0, 0, 0.15));
+  display: flex;
+  flex-direction: column;
+}
+
+/* Heading */
+.auth-card h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--heading-color, #1a202c);
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+}
+
+/* Subtitle */
+.auth-card > p {
+  font-size: 16px;
+  color: var(--text-secondary, #718096);
+  margin: 0 0 1.75rem;
+}
+
+/* General error banner */
+.auth-card > div:first-of-type {
+  background-color: var(--error-bg, #fff5f5);
+  border: 1px solid var(--error-border, #fed7d7);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--error-text, #c53030);
+  margin-bottom: 1.25rem;
+}
+
+/* Form layout */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Labels */
+form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--label-color, #2d3748);
+  margin-bottom: 6px;
+}
+
+/* All inputs */
+form input[type="email"],
+form input[type="text"],
+form input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 16px;
+  background-color: var(--input-bg, #f7fafc);
+  border: 2px solid var(--input-border, #e2e8f0);
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--input-text, #2d3748);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+form input::placeholder {
+  color: var(--input-placeholder, #a0aec0);
+}
+
+form input:focus {
+  border-color: var(--input-focus-border, #667eea);
+  background: var(--input-focus-bg, #ffffff);
+  box-shadow: 0 0 0 3px var(--input-focus-shadow, rgba(102, 126, 234, 0.1));
+}
+
+/* Password wrapper - keeps your structure */
+form > div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Show/Hide button */
+form > div > button[type="button"] {
+  align-self: flex-end;
+  margin-top: -34px;
+  margin-right: 12px;
+  padding: 4px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--toggle-color, #718096);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 1;
+}
+
+form > div > button[type="button"]:hover {
+  color: var(--toggle-hover, #4a5568);
+  background: var(--toggle-hover-bg, #edf2f7);
+}
+
+/* Field error text */
+form > div > p {
+  font-size: 13px;
+  color: var(--error-text, #fc8181);
+  margin: 6px 0 0;
+  font-weight: 500;
+}
+
+/* Forgot password link */
+form a {
+  font-size: 14px;
+  color: var(--link-color, #667eea);
+  text-decoration: none;
+  font-weight: 500;
+  text-align: right;
+  margin-top: -0.5rem;
+}
+
+form a:hover {
+  color: var(--link-hover, #5a67d8);
+  text-decoration: underline;
+}
+
+/* Log In button - Gradient */
+form > button[type="submit"] {
+  width: 100%;
+  height: 48px;
+  background: var(--button-bg, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  color: var(--button-text, #ffffff);
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+}
+
+form > button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--button-shadow, 0 8px 25px rgba(102, 126, 234, 0.3));
+}
+
+form > button[type="submit"]:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+form > button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Bottom links */
+.auth-card > p:not(:first-of-type) {
+  font-size: 14px;
+  color: var(--text-secondary, #718096);
+  text-align: center;
+  margin-top: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.auth-card > p:last-of-type {
+  margin-top: 8px;
+  border-top: 1px solid var(--divider-color, #e2e8f0);
+  padding-top: 1.5rem;
+}
+
+.auth-card > a:last-of-type {
+  font-size: 14px;
+  color: var(--link-color, #667eea);
+  text-decoration: none;
+  text-align: center;
+  font-weight: 600;
+}
+
+.auth-card > a:last-of-type:hover {
+  color: var(--link-hover, #5a67d8);
+  text-decoration: underline;
+}
+
+/* ============================================
+   THEME SELECTOR (for your existing JSX)
+   ============================================ */
+
+/* If your theme selector uses div with text */
+.auth-card > div:has(label) {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--theme-selector-bg, #f7fafc);
+  border-radius: 10px;
+  border: 1px solid var(--theme-selector-border, #e2e8f0);
+}
+
+.auth-card > div:has(label) label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--theme-selector-label, #718096);
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.auth-card > div:has(label) > div {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.auth-card > div:has(label) button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--theme-btn-bg, #ffffff);
+  border: 2px solid var(--theme-btn-border, #e2e8f0);
+  border-radius: 8px;
+  color: var(--theme-btn-text, #4a5568);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-card > div:has(label) button:hover {
+  background: var(--theme-btn-hover-bg, #edf2f7);
+  border-color: var(--theme-btn-hover-border, #cbd5e0);
+  transform: translateY(-1px);
+}
+
+.auth-card > div:has(label) button.active {
+  background: var(--theme-btn-active-bg, #667eea);
+  border-color: var(--theme-btn-active-border, #667eea);
+  color: var(--theme-btn-active-text, #ffffff);
+  box-shadow: 0 2px 8px var(--theme-btn-active-shadow, rgba(102, 126, 234, 0.3));
+}
+
+/* ============================================
+   THEME VARIABLES
+   ============================================ */
+
+/* LIGHT Theme (Default) */
+:root {
+  --login-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --brand-text: #ffffff;
+  --card-bg: #ffffff;
+  --card-border: transparent;
+  --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --heading-color: #1a202c;
+  --text-secondary: #718096;
+  --text-muted: #a0aec0;
+  --label-color: #2d3748;
+  --input-bg: #f7fafc;
+  --input-border: #e2e8f0;
+  --input-text: #2d3748;
+  --input-placeholder: #a0aec0;
+  --input-focus-border: #667eea;
+  --input-focus-bg: #ffffff;
+  --input-focus-shadow: rgba(102, 126, 234, 0.1);
+  --input-error-border: #fc8181;
+  --input-error-shadow: rgba(252, 129, 129, 0.1);
+  --error-text: #fc8181;
+  --error-bg: #fff5f5;
+  --error-border: #fed7d7;
+  --toggle-color: #718096;
+  --toggle-hover: #4a5568;
+  --toggle-hover-bg: #edf2f7;
+  --link-color: #667eea;
+  --link-hover: #5a67d8;
+  --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --button-text: #ffffff;
+  --button-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  --divider-color: #e2e8f0;
+  --theme-selector-bg: #f7fafc;
+  --theme-selector-border: #e2e8f0;
+  --theme-selector-label: #718096;
+  --theme-btn-bg: #ffffff;
+  --theme-btn-border: #e2e8f0;
+  --theme-btn-text: #4a5568;
+  --theme-btn-hover-bg: #edf2f7;
+  --theme-btn-hover-border: #cbd5e0;
+  --theme-btn-active-bg: #667eea;
+  --theme-btn-active-border: #667eea;
+  --theme-btn-active-text: #ffffff;
+  --theme-btn-active-shadow: rgba(102, 126, 234, 0.3);
+}
+
+/* DARK Theme */
+[data-theme="dark"] {
+  --login-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  --brand-text: #ffffff;
+  --card-bg: #1e1e2a;
+  --card-border: #2d2d3d;
+  --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --heading-color: #e2e8f0;
+  --text-secondary: #a0aec0;
+  --text-muted: #718096;
+  --label-color: #cbd5e0;
+  --input-bg: #2d2d3d;
+  --input-border: #3d3d4d;
+  --input-text: #e2e8f0;
+  --input-placeholder: #718096;
+  --input-focus-border: #667eea;
+  --input-focus-bg: #2d2d3d;
+  --input-focus-shadow: rgba(102, 126, 234, 0.2);
+  --input-error-border: #fc8181;
+  --input-error-shadow: rgba(252, 129, 129, 0.2);
+  --error-text: #fc8181;
+  --error-bg: rgba(252, 129, 129, 0.1);
+  --error-border: rgba(252, 129, 129, 0.2);
+  --toggle-color: #a0aec0;
+  --toggle-hover: #cbd5e0;
+  --toggle-hover-bg: #3d3d4d;
+  --link-color: #818cf8;
+  --link-hover: #6366f1;
+  --button-bg: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  --button-text: #ffffff;
+  --button-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  --divider-color: #3d3d4d;
+  --theme-selector-bg: #2d2d3d;
+  --theme-selector-border: #3d3d4d;
+  --theme-selector-label: #a0aec0;
+  --theme-btn-bg: #1e1e2a;
+  --theme-btn-border: #3d3d4d;
+  --theme-btn-text: #cbd5e0;
+  --theme-btn-hover-bg: #3d3d4d;
+  --theme-btn-hover-border: #4d4d5d;
+  --theme-btn-active-bg: #6366f1;
+  --theme-btn-active-border: #6366f1;
+  --theme-btn-active-text: #ffffff;
+  --theme-btn-active-shadow: rgba(99, 102, 241, 0.3);
+}
+
+/* OCEAN Theme */
+[data-theme="ocean"] {
+  --login-bg: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%);
+  --brand-text: #ffffff;
+  --card-bg: #0c4a6e;
+  --card-border: #1e6b8b;
+  --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --heading-color: #e0f2fe;
+  --text-secondary: #7dd3fc;
+  --text-muted: #38bdf8;
+  --label-color: #bae6fd;
+  --input-bg: #0a3d5c;
+  --input-border: #1e6b8b;
+  --input-text: #e0f2fe;
+  --input-placeholder: #7dd3fc;
+  --input-focus-border: #38bdf8;
+  --input-focus-bg: #0a3d5c;
+  --input-focus-shadow: rgba(56, 189, 248, 0.2);
+  --input-error-border: #fca5a5;
+  --input-error-shadow: rgba(252, 165, 165, 0.2);
+  --error-text: #fca5a5;
+  --error-bg: rgba(252, 165, 165, 0.1);
+  --error-border: rgba(252, 165, 165, 0.2);
+  --toggle-color: #7dd3fc;
+  --toggle-hover: #bae6fd;
+  --toggle-hover-bg: #1e6b8b;
+  --link-color: #38bdf8;
+  --link-hover: #7dd3fc;
+  --button-bg: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  --button-text: #ffffff;
+  --button-shadow: 0 8px 25px rgba(56, 189, 248, 0.3);
+  --divider-color: #1e6b8b;
+  --theme-selector-bg: #0a3d5c;
+  --theme-selector-border: #1e6b8b;
+  --theme-selector-label: #7dd3fc;
+  --theme-btn-bg: #0a3d5c;
+  --theme-btn-border: #1e6b8b;
+  --theme-btn-text: #bae6fd;
+  --theme-btn-hover-bg: #1e6b8b;
+  --theme-btn-hover-border: #2d8bb5;
+  --theme-btn-active-bg: #38bdf8;
+  --theme-btn-active-border: #38bdf8;
+  --theme-btn-active-text: #ffffff;
+  --theme-btn-active-shadow: rgba(56, 189, 248, 0.3);
+}
+
+/* ROSE Theme */
+[data-theme="rose"] {
+  --login-bg: linear-gradient(135deg, #831843 0%, #be185d 100%);
+  --brand-text: #ffffff;
+  --card-bg: #831843;
+  --card-border: #a13d6b;
+  --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --heading-color: #fce7f3;
+  --text-secondary: #f9a8d4;
+  --text-muted: #f472b6;
+  --label-color: #fbcfe8;
+  --input-bg: #6d1137;
+  --input-border: #a13d6b;
+  --input-text: #fce7f3;
+  --input-placeholder: #f9a8d4;
+  --input-focus-border: #f472b6;
+  --input-focus-bg: #6d1137;
+  --input-focus-shadow: rgba(244, 114, 182, 0.2);
+  --input-error-border: #fca5a5;
+  --input-error-shadow: rgba(252, 165, 165, 0.2);
+  --error-text: #fca5a5;
+  --error-bg: rgba(252, 165, 165, 0.1);
+  --error-border: rgba(252, 165, 165, 0.2);
+  --toggle-color: #f9a8d4;
+  --toggle-hover: #fbcfe8;
+  --toggle-hover-bg: #a13d6b;
+  --link-color: #f472b6;
+  --link-hover: #f9a8d4;
+  --button-bg: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
+  --button-text: #ffffff;
+  --button-shadow: 0 8px 25px rgba(244, 114, 182, 0.3);
+  --divider-color: #a13d6b;
+  --theme-selector-bg: #6d1137;
+  --theme-selector-border: #a13d6b;
+  --theme-selector-label: #f9a8d4;
+  --theme-btn-bg: #6d1137;
+  --theme-btn-border: #a13d6b;
+  --theme-btn-text: #fbcfe8;
+  --theme-btn-hover-bg: #a13d6b;
+  --theme-btn-hover-border: #b84d7a;
+  --theme-btn-active-bg: #f472b6;
+  --theme-btn-active-border: #f472b6;
+  --theme-btn-active-text: #ffffff;
+  --theme-btn-active-shadow: rgba(244, 114, 182, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 2rem 1.25rem;
+  }
+  
+  .auth-card h1 {
+    font-size: 24px;
+  }
+  
+  .auth-brand span {
+    font-size: 24px;
+  }
+}
