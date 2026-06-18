@@ -1,18 +1,19 @@
 import axios from "axios";
 
-// reads the backend URL from the .env file
+// Base axios instance, reads the backend URL from .env
 const API = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-// Add a request interceptor to include the access token in the Authorization header for all requests
+// Automatically attach the JWT token to every request if one exists in localStorage. This runs before
+// every single API call made through this API instance.
 API.interceptors.request.use((config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+})
 
 // SIGNUP
 export const signup = async ({ fullName, email, password, gender }) => {
