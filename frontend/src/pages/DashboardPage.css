@@ -16,7 +16,7 @@
   display: inline-block;
 }
 
-/* ── ROOT — full viewport height flex column ─────────────── */
+/* ROOT — full viewport height flex column */
 .dash-root {
   display: flex;
   flex-direction: column;
@@ -25,19 +25,13 @@
   background: var(--color-bg);
 }
 
-/* ── BODY — the two panel area below the topbar ─────────── */
-/* flex: 1 makes it fill the remaining height after the topbar.
-   overflow: hidden prevents the body itself from scrolling —
-   only the right panel scrolls. */
 .dash-body {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* ── LEFT PANEL ──────────────────────────────────────────── */
-/* Fixed 260px width, full height, does not scroll.
-   This is the key to the Claude-style layout. */
+/* LEFT PANEL */
 .dash-left {
   width: 260px;
   flex-shrink: 0;
@@ -181,9 +175,7 @@
   background: var(--color-accent-lt);
 }
 
-/* ── RIGHT PANEL ─────────────────────────────────────────── */
-/* Fills remaining width. overflow-y: auto makes ONLY this
-   panel scroll — the left panel stays fixed. */
+/* RIGHT PANEL */
 .dash-right {
   flex: 1;
   overflow-y: auto;
@@ -193,7 +185,7 @@
   gap: 36px;
 }
 
-/* ── SECTIONS ────────────────────────────────────────────── */
+/* SECTIONS */
 .dash-section {
   display: flex;
   flex-direction: column;
@@ -228,7 +220,7 @@
   border-radius: 10px;
 }
 
-/* ── ACTION BUTTON — "+ New group" ──────────────────────── */
+/* ACTION BUTTON — "+ New group" */
 .dash-action-btn {
   display: inline-flex;
   align-items: center;
@@ -263,7 +255,7 @@
   text-decoration: underline;
 }
 
-/* ── GROUP CARDS ─────────────────────────────────────────── */
+/* GROUP CARDS */
 .dash-cards {
   display: flex;
   flex-direction: column;
@@ -326,7 +318,7 @@
   font-size: 13px;
 }
 
-/* ── STATUS BADGES ───────────────────────────────────────── */
+/* STATUS BADGES */
 .dash-badge {
   font-size: 11px;
   font-weight: 500;
@@ -340,7 +332,7 @@
 .dash-badge--approved { background: #E8F5E2; color: #1A6B2A; }
 .dash-badge--rejected { background: var(--color-accent-lt); color: var(--color-accent); }
 
-/* ── REQUEST LIST ────────────────────────────────────────── */
+/* REQUEST LIST */
 .dash-request-list {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -428,7 +420,7 @@
   color: var(--color-accent);
 }
 
-/* ── EMPTY STATES ────────────────────────────────────────── */
+/* EMPTY STATES */
 .dash-empty {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -443,7 +435,7 @@
   font-size: 14px;
 }
 
-/* ── RESPONSIVE ──────────────────────────────────────────── */
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .dash-left {
     display: none;
