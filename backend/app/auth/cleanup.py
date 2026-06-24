@@ -46,7 +46,7 @@ def start_cleanup_scheduler() -> None:
     scheduler.start()
     print("[cleanup] Token cleanup scheduler started (every 1 hour).")
 
-def stop_cleanup_schedular() -> None:
+def stop_cleanup_scheduler() -> None:
 
     if scheduler.running:
         scheduler.shutdown(wait=False)

@@ -7,10 +7,11 @@ from app.auth.routes import router as auth_router
 from app.database import engine
 from app.groups.routes import router as groups_router
 from app.memberships.routes import router as memberships_router
+from app.admin.routes import admin_router, public_router, student_router
 from app.middleware.cors import setup_cors
 from app.middleware.security_headers import setup_security_headers
 from app.middleware.rate_limit import setup_rate_limiting
-from app.auth.cleanup import start_cleanup_scheduler, stop_cleanup_schedular
+from app.auth.cleanup import start_cleanup_scheduler, stop_cleanup_scheduler
 
 def test_database_connection():
     try:
@@ -24,9 +25,9 @@ def test_database_connection():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     test_database_connection()
-    start_cleanup_scheduler
+    # start_cleanup_scheduler()
     yield
-    stop_cleanup_schedular
+    # stop_cleanup_scheduler()
     print("Shutting down Study Connect API...")
 
 app = FastAPI(lifespan=lifespan)
@@ -35,7 +36,7 @@ app = FastAPI(lifespan=lifespan)
 setup_security_headers(app)
 
 # Rate limiting - registered second
-setup_rate_limiting
+# setup_rate_limiting(app)
 
 # CORS - registered last; innermost layer, runs closest to the route handler
 setup_cors(app)
@@ -43,6 +44,9 @@ setup_cors(app)
 app.include_router(auth_router)
 app.include_router(groups_router)
 app.include_router(memberships_router)
+app.include_router(admin_router)
+app.include_router(public_router)
+app.include_router(student_router)
 
 @app.get("/")
 def home():

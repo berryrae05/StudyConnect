@@ -13,6 +13,9 @@ class User(Base):
     role = Column(String(20), nullable=False, default="student")
     gender = Column(String(30), nullable=True,)
     is_verified= Column(Boolean, nullable=False, default=False)
+    is_suspended = Column(Boolean, nullable=False, default=False)
+    suspended_until = Column(DateTime(timezone=True), nullable=True)
+    suspension_reason = Column(String(500), nullable=True, default=None)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     verification_sent_at = Column(DateTime(timezone=True), nullable=True, default=None)
 
@@ -55,4 +58,20 @@ class User(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
         order_by="PasswordHistory.created_at.desc()", 
+    )
+
+    reports_filed = relationship(
+        "Report",
+        foreign_keys="Report.reported_by_id",
+        back_populates="reporter",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    reports_against = relationship(
+        "Report",
+        foreign_keys="Report.against_user_id",
+        back_populates="reported_user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
