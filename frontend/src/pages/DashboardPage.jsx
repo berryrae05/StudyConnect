@@ -51,7 +51,6 @@ export default function DashboardPage() {
         setMyGroups(created);
 
         const joined = await getMyJoinedGroups(user.id);
-        // TODO: map joined groups into myRequests shape, or create a separate state for joined groups
 
       } catch (error) {
         console.error("Failed to load groups:", error);
@@ -74,7 +73,6 @@ export default function DashboardPage() {
   };
 
   const handleAccept = (id) => {
-    // TODO: await requestService.approveRequest(id)
     setIncomingRequests((prev) => prev.filter((r) => r.id !== id));
   };
 
