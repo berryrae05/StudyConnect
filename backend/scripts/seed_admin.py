@@ -38,6 +38,7 @@ def seed_admin(email: str, password: str, full_name: str = "Full Name"):
 
 if __name__ == "__main__":
     seed_admin(
-        email="emial@example.com",
-        password="PassWord1!"
+        full_name="Tshepo Admin",
+        email="4514906@myuwc.ac.za",
+        password="Password@1"
     )
