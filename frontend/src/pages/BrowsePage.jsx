@@ -90,7 +90,6 @@ export default function BrowsePage() {
       );
     } catch (err) {
       console.error("Failed to join group:", err);
-      // TODO: surface this error to the user, e.g. a toast or banner
     } finally {
       setJoiningId(null);
     }
@@ -116,7 +115,7 @@ export default function BrowsePage() {
             <input
               type="text"
               className="browse-search-input"
-              placeholder="Search by module e.g. COS301"
+              placeholder="Search by module"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -176,7 +175,6 @@ export default function BrowsePage() {
           {/* Empty state — no results match the current filters */}
           {!loading && visibleGroups.length === 0 && (
             <div className="browse-empty">
-              <i className="ti ti-search-off browse-empty-icon" aria-hidden="true"></i>
               <p className="browse-empty-text">No study groups match your search.</p>
               <p className="browse-empty-sub">Try a different module or clear your filters.</p>
             </div>
