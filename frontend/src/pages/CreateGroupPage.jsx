@@ -2,84 +2,76 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Input from "../components/ui/Input";
+import { getModules, getVenues } from "../services/adminService.js";
 import "./CreateGroupPage.css";
 
-// ── MOCK DATA ─────────────────────────────────────────────────
-// TODO: Replace with real API calls when module/venue endpoints ready.
-// These populate the module and location dropdowns.
-const MOCK_MODULES = [
-  { code: "COS301", name: "Software Engineering"    },
-  { code: "COS201", name: "Data Structures"         },
-  { code: "MAT211", name: "Calculus"                },
-  { code: "PHY101", name: "Physics"                 },
-  { code: "STA221", name: "Statistics"              },
-];
 
-const MOCK_VENUES = [
-  "Library Room 2B",
-  "Library Room 3A",
-  "Engineering Lab 1",
-  "Engineering Lab 3",
-  "Student Centre",
-  "Main Hall Study Room",
-  "Science Block Room 5",
-];
-
-// ============================================================
-// MAIN COMPONENT
-// ============================================================
 export default function CreateGroupPage() {
 
-  // ── FORM STATE ──────────────────────────────────────────────
-  // REACT: One state variable per field.
-  // These map directly to the GroupCreate schema fields.
-  const [moduleCode, setModuleCode]     = useState("");
-  const [description, setDescription]  = useState("");
-  const [location, setLocation]         = useState("");
-  const [studyDate, setStudyDate]       = useState(""); // date part e.g. 2025-05-12
-  const [studyTime, setStudyTime]       = useState(""); // time part e.g. 14:00
-  const [maxMembers, setMaxMembers]     = useState(5);
+  const [moduleCode, setModuleCode] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [studyDate, setStudyDate] = useState(""); // date part e.g. 2025-05-12
+  const [studyTime, setStudyTime] = useState(""); // time part e.g. 14:00
+  const [maxMembers, setMaxMembers] = useState(5);
 
-  // ── USER STATE ──────────────────────────────────────────────
-  // REACT: Reads the logged-in user from localStorage.
-  // We need user.id to send as created_by in the request body.
+  // User state tracks the logged-in user, which is required to create a group
   const [user, setUser] = useState(null);
 
-  // ── ERROR STATE ─────────────────────────────────────────────
+  // Modules and venues are fetched from the backend to populate the dropdowns
+  const [modules, setModules] = useState([]);
+  const [venues, setVenues] = useState([]);
+
+  // Errors state tracks validation errors for each field and a general error message
   const [errors, setErrors] = useState({
-    moduleCode:  "",
-    location:    "",
-    studyDate:   "",
-    studyTime:   "",
-    maxMembers:  "",
-    general:     "",
+    moduleCode: "",
+    location: "",
+    studyDate: "",
+    studyTime: "",
+    maxMembers: "",
+    general: "",
   });
 
-  // ── LOADING STATE ───────────────────────────────────────────
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // REACT: useEffect runs once on mount to read the logged-in user.
-  // If no user found, redirect to login.
+  // useEffect to load user, modules, and venues on component mount
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (!savedUser) {
-      navigate("/login");
-      return;
-    }
-    setUser(JSON.parse(savedUser));
+    const loadPageData = async () => {
+      const savedUser = localStorage.getItem("user");
+
+      if (!savedUser) {
+        navigate("/login");
+        return;
+      }
+
+      setUser(JSON.parse(savedUser));
+
+      try {
+        const [modulesData, venuesData] = await Promise.all([
+          getModules(),
+          getVenues(),
+        ]);
+
+        setModules(modulesData);
+        setVenues(venuesData);
+      } catch (error) {
+        console.error("Failed to load modules/venues:", error);
+      }
+    };
+
+    loadPageData();
   }, []);
 
-  // ── VALIDATION ──────────────────────────────────────────────
   const validate = () => {
     const newErrors = {
       moduleCode: "",
-      location:   "",
-      studyDate:  "",
-      studyTime:  "",
+      location: "",
+      studyDate: "",
+      studyTime: "",
       maxMembers: "",
-      general:    "",
+      general: "",
     };
     let valid = true;
 
@@ -99,7 +91,7 @@ export default function CreateGroupPage() {
     } else {
       // Make sure the date is not in the past
       const selected = new Date(studyDate);
-      const today    = new Date();
+      const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selected < today) {
         newErrors.studyDate = "Date cannot be in the past";
@@ -139,12 +131,12 @@ export default function CreateGroupPage() {
 
       // Build the request body matching GroupCreate schema exactly
       const payload = {
-        module_code:  moduleCode,
-        description:  description.trim() || null,
-        location:     location,
-        date_time:    dateTime,
-        max_members:  Number(maxMembers),
-        created_by:   user.id,
+        module_code: moduleCode,
+        description: description.trim() || null,
+        location: location,
+        date_time: dateTime,
+        max_members: Number(maxMembers),
+        created_by: user.id,
       };
 
       // Get the JWT token saved during login
@@ -154,9 +146,9 @@ export default function CreateGroupPage() {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/groups`,
         {
-          method:  "POST",
+          method: "POST",
           headers: {
-            "Content-Type":  "application/json",
+            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
@@ -166,8 +158,8 @@ export default function CreateGroupPage() {
       if (!response.ok) {
         // Read the error detail from the response body
         const errorData = await response.json();
-        const detail    = errorData?.detail;
-        let message     = "Failed to create group. Please try again.";
+        const detail = errorData?.detail;
+        let message = "Failed to create group. Please try again.";
 
         if (typeof detail === "string") {
           message = detail;
@@ -254,9 +246,8 @@ export default function CreateGroupPage() {
                   }}
                 >
                   <option value="">Select a module</option>
-                  {/* REACT: .map() renders one option per module */}
-                  {MOCK_MODULES.map((mod) => (
-                    <option key={mod.code} value={mod.code}>
+                  {modules.map((mod) => (
+                    <option key={mod.id} value={mod.code}>
                       {mod.code} — {mod.name}
                     </option>
                   ))}
@@ -306,9 +297,9 @@ export default function CreateGroupPage() {
                 >
                   <option value="">Select a venue</option>
                   {/* REACT: .map() renders one option per venue */}
-                  {MOCK_VENUES.map((venue) => (
-                    <option key={venue} value={venue}>
-                      {venue}
+                  {venues.map((venue) => (
+                    <option key={venue.id} value={venue.name}>
+                      {venue.name}
                     </option>
                   ))}
                 </select>

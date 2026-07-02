@@ -5,8 +5,7 @@ const API = axios.create({
 });
 
 // Request interceptor to add JWT token to Authorization header if it exists
-// This ensures that all requests made through this API instance
-// will include the token for authentication if the user is logged in.
+// This runs before every single API call made through this API instance.
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) {
@@ -56,8 +55,7 @@ export const getGroupMembers = async (groupId) => {
 
 // JOIN GROUP
 // This is instant, there is no "pending" approval step in the current backend.
-// Joining immediately adds the user as a member.
-// Please note, it will be revisited once a request/approval system exists.
+// Joining immediately adds the user as a member. Please note, it will be revisited once a request/approval system exists.
 export const joinGroup = async (groupId) => {
   const response = await API.post(`/groups/${groupId}/join`);
   return response.data;
