@@ -76,7 +76,12 @@ export default function LoginPage() {
         JSON.stringify(response.user)
       );
 
-      navigate("/dashboard");
+      // Navigate based on user role
+      if (response.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
 
     } catch (error) {
       const detail = error.response?.data?.detail;

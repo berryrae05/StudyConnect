@@ -20,9 +20,15 @@ export const getAdminStats = async () => {
   return response.data;
 };
 
-// MODULES
+// List all modules for the admin dashboard only
 export const listModules = async () => {
   const response = await API.get("/admin/modules");
+  return response.data;
+};
+
+// List all modules for the public-facing module list (no auth required)
+export const getModules = async () => {
+  const response = await API.get("/modules");
   return response.data;
 };
 
@@ -45,9 +51,15 @@ export const deleteModule = async (moduleId) => {
 };
 
 // VENUES
-// List all venues
+// List all venues for the admin dashboard only
 export const listVenues = async () => {
   const response = await API.get("/admin/venues");
+  return response.data;
+};
+
+// List all venues for the public-facing venue list (no auth required)
+export const getVenues = async () => {
+  const response = await API.get("/venues");
   return response.data;
 };
 
