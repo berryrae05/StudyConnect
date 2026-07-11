@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import { getMyCreatedGroups, getMyJoinedGroups } from "../services/groupService";
+import { getMyCreatedGroups, getMyJoinedGroups, leaveGroup, deleteGroup } from "../services/groupService";
 import "./DashboardPage.css";
 
 const NAV_ITEMS = [
@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingGroupId, setDeletingGroupId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -78,6 +79,21 @@ export default function DashboardPage() {
 
   const handleReject = (id) => {
     setIncomingRequests((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleDeleteGroup = async (groupId) => {
+    if (!window.confirm("Delete this group? This cannot be undone.")) return;
+
+    setDeletingGroupId(groupId);
+    try {
+      await deleteGroup(groupId);
+      // Remove the deleted group from the state so the UI updates immediately
+      setMyGroups((prev) => prev.filter((g) => g.id !== groupId));
+    } catch (err) {
+      console.error("Failed to delete group:", err);
+    } finally {
+      setDeletingGroupId(null);
+    }
   };
 
   const handleLogout = () => {
@@ -209,6 +225,32 @@ export default function DashboardPage() {
                       </span>
 
                     </div>
+
+                    <div className="dash-card-footer">
+                      <Link
+                        to={`/groups/${group.id}`}
+                        className="dash-card-view-link"
+                      >
+                        View details
+                      </Link>
+                      <button
+                        className="dash-card-delete-btn"
+                        disabled={deletingGroupId === group.id}
+                        onClick={() => handleDeleteGroup(group.id)}
+                      >
+                        {deletingGroupId === group.id ? (
+                          <>
+                            <i className="ti ti-loader-2 spin" aria-hidden="true"></i>
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <i className="ti ti-trash" aria-hidden="true"></i>
+                            Delete
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -220,7 +262,6 @@ export default function DashboardPage() {
             <div className="dash-section-top">
               <h2 className="dash-section-title">
                 Incoming join requests
-
                 {incomingRequests.length > 0 && (
                   <span className="dash-section-count">
                     {incomingRequests.length}
