@@ -76,12 +76,7 @@ export default function LoginPage() {
         JSON.stringify(response.user)
       );
 
-      // Navigate based on user role
-      if (response.user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
 
     } catch (error) {
       const detail = error.response?.data?.detail;
@@ -113,25 +108,17 @@ export default function LoginPage() {
 
       <div className="auth-card">
 
-        {/* Logo mark — green circle matching the design */}
-        <div className="login-logo-mark">
-          <i className="ti ti-users" aria-hidden="true"></i>
-        </div>
+        <h1>Welcome Back</h1>
+        <p>Log in to access your study groups.</p>
 
-        <h1 className="login-title">Welcome Back</h1>
-        <p className="login-sub">Log in to access your study groups.</p>
-
-        {/* General error banner */}
         {errors.general && (
-          <div className="login-error-banner">
-            <i className="ti ti-alert-circle" aria-hidden="true"></i>
-            <span>{errors.general}</span>
+          <div>
+            {errors.general}
           </div>
         )}
 
         <form onSubmit={handleSubmit} noValidate>
 
-          {/* Email — uses Input component which has its own classes */}
           <Input
             label="Email address"
             type="email"
@@ -139,90 +126,74 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              setErrors((prev) => ({ ...prev, email: "", general: "" }));
+
+              setErrors((prev) => ({
+                ...prev,
+                email: "",
+                general: "",
+              }));
             }}
             error={errors.email}
             required
           />
 
-          {/* Password field */}
-          <div className="password-field-wrapper">
+          <div>
+            <label>Password</label>
 
-            {/* Label row — label left, forgot password right */}
-            <div className="password-label-row">
-              <label className="input-label" htmlFor="password">Password</label>
-              <Link to="/forgot-password" className="forgot-link">
-                Forgot password?
-              </Link>
-            </div>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
 
-            {/* Input box — same look as email field */}
-            <div className={`input-row ${errors.password ? "input-row--error" : ""}`}>
-              <input
-                id="password"
-                className="input-field"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setErrors((prev) => ({ ...prev, password: "", general: "" }));
-                }}
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                <i
-                  className={`ti ${showPassword ? "ti-eye-off" : "ti-eye"}`}
-                  aria-hidden="true"
-                ></i>
-              </button>
-            </div>
+                setErrors((prev) => ({
+                  ...prev,
+                  password: "",
+                  general: "",
+                }));
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowPassword(!showPassword)
+              }
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
 
             {errors.password && (
-              <p className="input-error">
-                <i className="ti ti-alert-circle" aria-hidden="true"></i>
-                {errors.password}
-              </p>
+              <p>{errors.password}</p>
             )}
-
           </div>
 
-          {/* Submit button */}
+          <div>
+            <Link to="/forgot-password">
+              Forgot your password?
+            </Link>
+          </div>
+
           <button
             type="submit"
-            className={`login-submit ${loading ? "login-submit--loading" : ""}`}
             disabled={loading}
           >
-            {loading ? (
-              <>
-                <i className="ti ti-loader-2 spin" aria-hidden="true"></i>
-                Logging in...
-              </>
-            ) : (
-              "Log in"
-            )}
+            {loading ? "Logging in..." : "Log In"}
           </button>
 
         </form>
 
-        {/* Divider */}
-        <div className="login-divider">
-          <hr />
-          <span>or</span>
-          <hr />
-        </div>
-
-        {/* Sign up row */}
-        <p className="login-signup-row">
-          Don't have an account?{" "}
-          <Link to="/signup">Sign up</Link>
+        <p>
+          Don't have an account?
         </p>
 
+        <Link to="/signup">
+          Create an account
+        </Link>
+
       </div>
+
     </div>
   );
 }
