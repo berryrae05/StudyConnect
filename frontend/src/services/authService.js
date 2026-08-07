@@ -42,6 +42,23 @@ export const verifyEmail = async (token) => {
     return response.data;
 };
 
+// FORGOT PASSWORD
+export const forgotPassword = async ({ email }) => {
+  const response = await API.post("/auth/forgot-password", {
+    email,
+  });
+  return response.data;
+};
+
+// RESET PASSWORD
+export const resetPassword = async ({ token, newPassword }) => {
+  const response = await API.post("/auth/reset-password", {
+    token,
+    new_password: newPassword
+  });
+  return response.data;
+};
+
 // GET CURRENT USER
 // Returns logged in user data — requires JWT token
 export const getCurrentUser = async () => {

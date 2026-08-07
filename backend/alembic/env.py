@@ -11,6 +11,13 @@ from app.config import settings
 from app.users.model import User
 from app.groups.model import Group
 from app.memberships.model import Membership
+from app.auth.token_model import RefreshToken
+from app.auth.audit_model import AuthEvent
+from app.auth.password_history_model import PasswordHistory
+from app.modules.model import Module
+from app.venues.model import Venue
+from app.moderation.model import Report
+from app.admin.audit_model import AdminAction
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

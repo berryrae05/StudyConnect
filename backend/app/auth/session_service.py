@@ -5,6 +5,7 @@ from fastapi import HTTPException, Request, status
 
 from app.users.model import User
 from app.users.schema import UserLogin, LogoutRequest
+from app.users.admin_services import is_suspension_active
 
 from app.auth.security import (verify_password, create_access_token, hash_token)
 
@@ -84,6 +85,20 @@ def login_user(user_data: UserLogin, request: Request, db: Session):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=detail,
         )
+    
+    if is_suspension_active(user, db):
+        if user.suspended_until is None:
+            detail = f"Your account has been suspended. Reason: {user.suspension_reason or 'Not specified'}."
+        else: 
+            suspended_until = user.suspended_until
+            if suspended_until.tzinfo is None:
+                suspended_until = suspended_until.replace(tzinfo=timezone.utc)
+            detail = (
+                f"Your account is suspended until {suspended_until.strftime('%d %B %Y')}."
+                f"Reason: {user.suspension_reason or 'Not specified'}."
+            )
+            log_auth_event(db, request, AuthEventType.LOGIN_LOCKED, user_id=user.id, detail="suspended")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
     
     # Email not verified
     if not user.is_verified:

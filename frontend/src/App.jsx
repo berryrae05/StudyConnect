@@ -9,6 +9,8 @@ import CreateGroupPage from "./pages/CreateGroupPage.jsx";
 import GroupDetailPage from "./pages/GroupDetailPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 
 export default function App() {
   return (
@@ -23,6 +25,8 @@ export default function App() {
         <Route path="/groups/:id" element={<GroupDetailPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );
