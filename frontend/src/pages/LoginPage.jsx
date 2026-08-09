@@ -66,15 +66,9 @@ export default function LoginPage() {
 
       console.log("Login success:", response);
 
-      localStorage.setItem(
-        "access_token",
-        response.access_token
-      );
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.user)
-      );
+      localStorage.setItem("access_token", response.access_token);
+      localStorage.setItem("refresh_token", response.refresh_token);
+      localStorage.setItem("user", JSON.stringify(response.user));
 
       // Navigate based on user role
       if (response.user.role === "admin") {
