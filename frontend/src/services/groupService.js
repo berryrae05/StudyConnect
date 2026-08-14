@@ -1,18 +1,4 @@
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-});
-
-// Request interceptor to add JWT token to Authorization header if it exists
-// This runs before every single API call made through this API instance.
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import API from "./api.js";
 
 // List of all groups, optionally filtered by module_code and study_date
 // used by browse groups page and search bar. Returns an array of GroupResponse objects.
