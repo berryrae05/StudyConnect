@@ -11,6 +11,21 @@ from app.groups.schema import GroupCreate
 from app.modules.model import Module
 
 
+def group_to_response(group: Group) -> dict:
+    """Convert a Group ORM object into the API response format."""
+    return {
+        "id": group.id,
+        "module_code": group.module_code,
+        "description": group.description,
+        "location": group.location,
+        "date_time": group.date_time,
+        "max_members": group.max_members,
+        "current_members": len(group.memberships),
+        "created_by": group.created_by,
+        "created_at": group.created_at,
+    }
+
+
 def create_group(data: GroupCreate, creator_id: int, db: Session) -> dict:
     """Create a new study group."""
     group = Group(
@@ -26,17 +41,7 @@ def create_group(data: GroupCreate, creator_id: int, db: Session) -> dict:
     db.commit()
     db.refresh(group)
 
-    return {
-        "id": group.id,
-        "module_code": group.module_code,
-        "description": group.description,
-        "location": group.location,
-        "date_time": group.date_time,
-        "max_members": group.max_members,
-        "current_members": len(group.memberships),
-        "created_by": group.created_by,
-        "created_at": group.created_at,
-    }
+    return group_to_response(group)
 
 
 def list_groups(
@@ -60,6 +65,7 @@ def list_groups(
                     " ",
                     "",
                 ).contains(search),
+
                 # Search by full module name
                 func.lower(Module.name).contains(
                     module_code.strip().lower()
@@ -75,23 +81,13 @@ def list_groups(
     groups = query.all()
 
     return [
-        {
-            "id": group.id,
-            "module_code": group.module_code,
-            "description": group.description,
-            "location": group.location,
-            "date_time": group.date_time,
-            "max_members": group.max_members,
-            "current_members": len(group.memberships),
-            "created_by": group.created_by,
-            "created_at": group.created_at,
-        }
+        group_to_response(group)
         for group in groups
     ]
 
 
-def get_group(group_id: int, db: Session) -> dict:
-    """Return one study group with its current member count."""
+def get_group(group_id: int, db: Session) -> Group:
+    """Return one study group by its ID."""
     group = (
         db.query(Group)
         .filter(Group.id == group_id)
@@ -104,32 +100,12 @@ def get_group(group_id: int, db: Session) -> dict:
             detail="Group not found",
         )
 
-    return {
-        "id": group.id,
-        "module_code": group.module_code,
-        "description": group.description,
-        "location": group.location,
-        "date_time": group.date_time,
-        "max_members": group.max_members,
-        "current_members": len(group.memberships),
-        "created_by": group.created_by,
-        "created_at": group.created_at,
-    }
+    return group
 
 
 def delete_group(group_id: int, user_id: int, db: Session) -> None:
     """Delete a group if the requesting user is its creator."""
-    group = (
-        db.query(Group)
-        .filter(Group.id == group_id)
-        .first()
-    )
-
-    if not group:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Group not found",
-        )
+    group = get_group(group_id, db)
 
     if group.created_by != user_id:
         raise HTTPException(
