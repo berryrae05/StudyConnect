@@ -70,8 +70,11 @@ export default function LoginPage() {
       localStorage.setItem("refresh_token", response.refresh_token);
       localStorage.setItem("user", JSON.stringify(response.user));
 
-      navigate("/dashboard");
-
+      if (response.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       const detail = error.response?.data?.detail;
 
