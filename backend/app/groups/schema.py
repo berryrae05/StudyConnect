@@ -29,5 +29,6 @@ class GroupResponse(BaseModel):
     location: str | None = None
     date_time: datetime | None = None
     max_members: int
+    current_members: int
     created_by: int
     created_at: datetime
