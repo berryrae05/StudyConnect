@@ -144,9 +144,6 @@ export default function SignupPage() {
     <div className="auth-page">
 
       <Link to="/" className="auth-brand">
-        <div className="auth-logo-mark">
-          <i className="ti ti-users" aria-hidden="true"></i>
-        </div>
         <span className="auth-logo-txt">Study Connect</span>
       </Link>
 
@@ -220,7 +217,6 @@ export default function SignupPage() {
                 Password <span className="input-required">*</span>
               </label>
               <div className={`input-row ${errors.password ? "input-row--error" : ""}`}>
-                <i className="ti ti-lock input-icon" aria-hidden="true"></i>
                 <input
                   className="input-field"
                   type={showPassword ? "text" : "password"}
@@ -269,7 +265,6 @@ export default function SignupPage() {
                 Confirm password <span className="input-required">*</span>
               </label>
               <div className={`input-row ${errors.confirmPassword ? "input-row--error" : ""}`}>
-                <i className="ti ti-lock input-icon" aria-hidden="true"></i>
                 <input
                   className="input-field"
                   type={showConfirm ? "text" : "password"}
