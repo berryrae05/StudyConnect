@@ -8,6 +8,8 @@ from app.database import engine
 from app.groups.routes import router as groups_router
 from app.memberships.routes import router as memberships_router
 from app.admin.routes import admin_router, public_router, student_router
+from app.users.profile_routes import router as profile_router
+
 from app.middleware.cors import setup_cors
 from app.middleware.security_headers import setup_security_headers
 from app.middleware.rate_limit import setup_rate_limiting
@@ -47,6 +49,7 @@ app.include_router(memberships_router)
 app.include_router(admin_router)
 app.include_router(public_router)
 app.include_router(student_router)
+app.include_router(profile_router)
 
 @app.get("/")
 def home():

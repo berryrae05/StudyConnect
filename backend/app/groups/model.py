@@ -1,6 +1,6 @@
 """SQLAlchemy model for a study group."""
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -19,6 +19,7 @@ class Group(Base):
     max_members = Column(Integer, nullable=False, default=10)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(),)
+    nearly_full_notified = Column(Boolean, nullable=False, default=False)
 
     # One user can create many groups
     creator = relationship(

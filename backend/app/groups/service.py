@@ -2,13 +2,17 @@
 
 from datetime import date
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
+import asyncio
 
 from app.groups.model import Group
 from app.groups.schema import GroupCreate
 from app.modules.model import Module
+from app.memberships.model import Membership
+from app.users.model import User
+from app.auth.email import send_cancellation_notification
 
 
 def group_to_response(group: Group) -> dict:
@@ -26,7 +30,7 @@ def group_to_response(group: Group) -> dict:
     }
 
 
-def create_group(data: GroupCreate, creator_id: int, db: Session) -> dict:
+def create_group(data: GroupCreate, creator_id: int, request: Request, db: Session) -> dict:
     """Create a new study group."""
     group = Group(
         module_code=data.module_code,
@@ -103,7 +107,7 @@ def get_group(group_id: int, db: Session) -> Group:
     return group
 
 
-def delete_group(group_id: int, user_id: int, db: Session) -> None:
+async def delete_group(group_id: int, user_id: int, request: Request, db: Session) -> None:
     """Delete a group if the requesting user is its creator."""
     group = get_group(group_id, db)
 
@@ -113,5 +117,35 @@ def delete_group(group_id: int, user_id: int, db: Session) -> None:
             detail="Only the group creator can delete this group",
         )
 
+    members_to_notify = (
+        db.query(User.email, User.full_name)
+        .join(Membership, Membership.user_id == User.id)
+        .filter(Membership.group_id == group_id)
+        .all()
+    )
+
+    #Snapshots the group details we'll need in the email
+    module_code = group.module_code
+    location = group.location
+    session_date = (
+        group.date_time.strftime("%d %B %B at %H:%M")
+        if group.date_time else None
+    )
+
+    #Membership cleanup first
+    db.query(Membership).filter(Membership.group_id == group_id).delete()
     db.delete(group)
     db.commit()
+
+    #Send cancellaion email
+    for member_email, member_name in members_to_notify:
+       
+        await send_cancellation_notification(
+            member_email=member_email,
+            member_name=member_name,
+            module_code=module_code,
+            location=location,
+            session_date=session_date,
+            group_id=group_id,
+        )
+            
