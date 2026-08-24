@@ -1,4 +1,5 @@
-
+#venues/services.py
+"""Business logic for venues."""
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
