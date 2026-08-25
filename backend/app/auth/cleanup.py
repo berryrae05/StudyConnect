@@ -50,7 +50,6 @@ def send_session_reminders() -> None:
             .filter(
                 Group.date_time >= window_start,
                 Group.date_time <= window_end,
-                Group.status == "active",
                 Group.date_time.isnot(None),
             )
             .all()
@@ -113,7 +112,7 @@ def start_cleanup_scheduler() -> None:
     # Registers the 24-hour session reminder job
     scheduler.add_job(
         send_session_reminders,
-        triggers="interval",
+        trigger="interval",
         seconds=86400, # once per day
         id="session_reminders",
         replace_existing=True,

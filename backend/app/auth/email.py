@@ -254,7 +254,7 @@ async def send_session_reminder(
         recipients=[email],
         body=f"""
 Hello {name},
-This is a reminder that your {module_code} study session is schedules for tomorrow.
+This is a reminder that your {module_code} study session is scheduled for tomorrow.
 
 {location_line}
 Date and time: {session_date}

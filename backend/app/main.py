@@ -27,9 +27,9 @@ def test_database_connection():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     test_database_connection()
-    # start_cleanup_scheduler()
+    start_cleanup_scheduler()
     yield
-    # stop_cleanup_scheduler()
+    stop_cleanup_scheduler()
     print("Shutting down Study Connect API...")
 
 app = FastAPI(lifespan=lifespan)
