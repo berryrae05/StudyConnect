@@ -1,8 +1,17 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+
+class UserModule(Base):
+        __tablename__="user_modules"
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True,)
+        module_id = Column(Integer, ForeignKey("modules.id", ondelete="CASCADE"), nullable=False, index=True)
+        __table_args__= (UniqueConstraint("user_id", "module_id", name="uq_user_module"),)
+        user = relationship("User", back_populates="enrolled_modules")
+        module = relationship("Module", back_populates="enrolled_by")
 
 class User(Base):
     __tablename__="users"
@@ -13,6 +22,12 @@ class User(Base):
     role = Column(String(20), nullable=False, default="student")
     gender = Column(String(30), nullable=True,)
     is_verified= Column(Boolean, nullable=False, default=False)
+
+     # Profile fields
+    programme = Column(String(255), nullable=True, default=None)
+    bio = Column(String(300), nullable=True, default=None)
+
+    #Suspension
     is_suspended = Column(Boolean, nullable=False, default=False)
     suspended_until = Column(DateTime(timezone=True), nullable=True)
     suspension_reason = Column(String(500), nullable=True, default=None)
@@ -74,4 +89,11 @@ class User(Base):
         back_populates="reported_user",
         cascade="all, delete-orphan",
         passive_deletes=True,
+    )
+
+    enrolled_modules = relationship(
+        "UserModule",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True
     )

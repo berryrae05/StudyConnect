@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, UniqueConstraint
 from app.database import Base
+from sqlalchemy.orm import relationship
 
 class Module(Base):
     __tablename__ = "modules"
@@ -20,4 +21,11 @@ class Module(Base):
 
     __table_args__ = (
         UniqueConstraint("code", name="uq_module_code"),
+    )
+
+    enrolled_by = relationship(
+        "UserModule",
+        back_populates="module",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )

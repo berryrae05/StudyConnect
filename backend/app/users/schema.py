@@ -66,6 +66,19 @@ class RefreshTokenRequest(BaseModel):
 class LogoutRequest(BaseModel):
     refresh_token: str
 
+class ProfileUpdate(BaseModel):
+    programme: str | None = Field(default=..., max_length=255)
+    bio: str | None = Field(default=..., max_length=300)
+
+    @field_validator("programme", "bio", mode="before")
+    @classmethod
+    def strip_strings(cls, v: str | None) -> str | None:
+        return v.strip() if isinstance(v, str) else v
+
+    model_config = ConfigDict(
+        extra="ignore"
+    )
+
 # response schemas
 class UserResponse(UserBase):
 
@@ -98,3 +111,37 @@ class LoginResponse(BaseModel):
 class RegisterResponse(BaseModel):
     message: str
     user: UserResponse
+
+class EnrolledModuleInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    code: str
+    name: str
+    is_active: bool
+
+class ProfileResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    full_name: str
+    gender: str | None
+    programme: str | None
+    bio: str | None
+    created_at: datetime
+    enrolled_modules: list[EnrolledModuleInfo] = []
+    groups_created: int = 0
+    groups_joined: int = 0
+
+class GroupSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    module_code: str
+    description: str | None
+    location: str | None
+    date_time: datetime | None
+    max_members: int
+
+class MyGroupsResponse(BaseModel):
+    groups_created: list[GroupSummary] = []
+    groups_joined: list[GroupSummary] = []
