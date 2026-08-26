@@ -3,7 +3,7 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
 from app.groups.schema import GroupCreate, GroupResponse
@@ -44,10 +44,12 @@ def create_study_group(
     data: GroupCreate,
     db: DBDependency,
     current_user: CurrentUser,
+    request: Request,
 ):
     return create_group(
         data,
-        current_user.id,
+        current_user.id, 
+        request,
         db,
     )
 
@@ -95,13 +97,15 @@ def get_study_group(
     "/{group_id}",
     status_code=204,
 )
-def delete_study_group(
+async def delete_study_group(
     group_id: int,
     db: DBDependency,
     current_user: CurrentUser,
+    request: Request,
 ):
-    delete_group(
+    return await delete_group(
         group_id,
-        current_user.id,
+        current_user.id, 
+        request,
         db,
     )

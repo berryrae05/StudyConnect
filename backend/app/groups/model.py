@@ -1,6 +1,6 @@
 """SQLAlchemy model for a study group."""
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -35,6 +35,7 @@ class Group(Base):
         nullable=False,
         server_default=func.now(),
     )
+    nearly_full_notified = Column(Boolean, nullable=False, default=False)
 
     # One user can create many groups
     creator = relationship(

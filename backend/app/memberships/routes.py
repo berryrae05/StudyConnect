@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.memberships.schema import MembersListResponse, MembershipResponse
@@ -17,21 +17,23 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post("/{group_id}/join", response_model=MembershipResponse, status_code=201)
-def join_study_group(
+async def join_study_group(
     group_id: int,
     db: DBDependency,
     current_user: CurrentUser,
+    request: Request,
 ):
-    return join_group(group_id, current_user.id, db)
+    return await join_group(group_id, current_user.id, request, db)
 
 
 @router.post("/{group_id}/leave", status_code=204)
-def leave_study_group(
+async def leave_study_group(
     group_id: int,
     db: DBDependency,
     current_user: CurrentUser,
+    request: Request,
 ):
-    leave_group(group_id, current_user.id, db)
+    return await leave_group(group_id, current_user.id, request, db)
 
 
 @router.get("/{group_id}/members", response_model=MembersListResponse)
