@@ -48,15 +48,15 @@ def send_session_reminders() -> None:
         groups = (
             db.query(Group)
             .filter(
-                Group.date_time >= window_start,
-                Group.date_time <= window_end,
-                Group.date_time.isnot(None),
+                Group.start_time >= window_start,
+                Group.start_time <= window_end,
+                Group.start_time.isnot(None),
             )
             .all()
         )
 
         for group in groups:
-            session_date = group.date_time.strftime("%d %B %Y at %H:%M")
+            session_date = group.start_time.strftime("%d %B %Y at %H:%M")
 
             # Collect everyone to notify: creator + all members
             recipients = []
@@ -80,7 +80,7 @@ def send_session_reminders() -> None:
                             email = email,
                             name = name,
                             module_code = group.module_code,
-                            location = group.location,
+                            location = group.venue.name if group.venue else None,
                             session_date = session_date,
                             group_id = group.id,
                         )
