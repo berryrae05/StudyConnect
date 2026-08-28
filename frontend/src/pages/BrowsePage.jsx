@@ -2,19 +2,20 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { listGroups, joinGroup } from "../services/groupService";
+import { getProfile } from "../services/profileService";
 import "./BrowsePage.css";
 
 const DATE_FILTERS = [
-  { id: "any",       label: "Any date"  },
-  { id: "today",     label: "Today"     },
-  { id: "this-week",  label: "This week" },
-  { id: "next-week",  label: "Next week" },
+  { id: "any", label: "Any date" },
+  { id: "today", label: "Today" },
+  { id: "this-week", label: "This week" },
+  { id: "next-week", label: "Next week" },
 ];
 
 /// Availability filter options for the frontend-only filter
 const AVAILABILITY_FILTERS = [
   { id: "open", label: "Open only" },
-  { id: "all",  label: "All"       },
+  { id: "all", label: "All" },
 ];
 
 // HELPER, get initials from a full name
@@ -24,11 +25,14 @@ const getInitials = (name = "") =>
 export default function BrowsePage() {
 
   const [user, setUser] = useState(null);
-  const [searchTerm, setSearchTerm]           = useState("");
+  const [enrolledModules, setEnrolledModules] = useState([]);
+  const [activeModuleCode, setActiveModuleCode] = useState(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
   const [activeDateFilter, setActiveDateFilter] = useState("any");
   const [activeAvailability, setActiveAvailability] = useState("open");
 
-  const [groups, setGroups]   = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [joiningId, setJoiningId] = useState(null); // tracks which group is mid-join
 
@@ -41,37 +45,60 @@ export default function BrowsePage() {
       return;
     }
     setUser(JSON.parse(savedUser));
+    loadProfile();
   }, []);
+
+  const loadProfile = async () => {
+    try {
+      const profileData = await getProfile();
+      const modules = profileData.enrolled_modules || [];
+      setEnrolledModules(modules);
+      if (modules.length > 0) {
+        setActiveModuleCode(modules[0].module_code);
+      }
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+    }
+  };
 
   // Fetch groups whenever the search term or date filter changes. This is a side effect
   // that runs after the component renders, and it updates the `groups` state with the fetched data.
   useEffect(() => {
-    const fetchGroups = async () => {
-      setLoading(true);
-      try {
-        const data = await listGroups({
-          moduleCode: searchTerm.trim() || undefined,
-          // TODO: convert activeDateFilter ("today" / "this-week" / etc.)
-          // into an actual date string the backend expects, once the
-          // backend's study_date filter format is confirmed.
-        });
-        setGroups(data);
-      } catch (err) {
-        console.error("Failed to load groups:", err);
-        setGroups([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchGroups();
-  }, [searchTerm, activeDateFilter]);
+  }, [activeModuleCode, searchTerm]);
 
-  // Filter the groups based on the active availability filter. This is a derived state that
-  // doesn't require a separate useState, since it's computed from the `groups` state.
+  const fetchGroups = async () => {
+    setLoading(true);
+    try {
+      const moduleCode = searchTerm.trim() || activeModuleCode || undefined;
+
+      const data = await listGroups({ moduleCode });
+      setGroups(data);
+    } catch (err) {
+      console.error("Failed to load groups:", err);
+      setGroups([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleModuleChip = (moduleCode) => {
+    if (activeModuleCode === moduleCode) {
+      setActiveModuleCode(null); // Deselect if already active
+    } else {
+      setActiveModuleCode(moduleCode);
+    }
+    setSearchTerm(""); // Clear search term so it doesn't override the module chip selection
+  }
+
+  const handleClearFilters = () => {
+    setActiveModuleCode(null);
+    setSearchTerm("");
+  }
+
   const visibleGroups = groups.filter((group) => {
     if (activeAvailability === "open") {
-      return group.current_members < group.max_members;
+      return group.max_members > (group.current_members ?? 0);
     }
     return true; // "all" shows everything
   });
@@ -98,13 +125,12 @@ export default function BrowsePage() {
   return (
     <div className="browse-root">
 
-      {/* Shared navbar — same as Dashboard and Admin */}
+      {/* Shared navbar with Dashboard and Admin */}
       <Navbar user={user} activeLink="browse" />
 
-      {/* Body — left panel (search/filters) + right panel (results) */}
       <div className="browse-body">
 
-        {/* LEFT PANEL — Search & Filters */}
+        {/* LEFT PANEL */}
         <aside className="browse-left">
 
           <div className="browse-left-title">Find a group</div>
@@ -117,26 +143,49 @@ export default function BrowsePage() {
               className="browse-search-input"
               placeholder="Search by module"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                // Clear module chip when typing manually
+                if (e.target.value) setActiveModuleCode(null);
+              }}
             />
+
+            {/* Clear search button, only shown when search has a value */}
+            {searchTerm && (
+              <button
+                className="browse-search-clear"
+                onClick={() => setSearchTerm("")}
+                aria-label="Clear search"
+              >
+                <i className="ti ti-x" aria-hidden="true"></i>
+              </button>
+            )}
           </div>
 
-          {/* Date filter chips */}
-          <div className="browse-filter-group">
-            <div className="browse-filter-label">Date</div>
-            <div className="browse-chip-row">
-              {/* .map() renders one chip per DATE_FILTERS entry */}
-              {DATE_FILTERS.map((filter) => (
+          {enrolledModules.length > 0 && (
+            <div className="browse-filter-group">
+              <div className="browse-filter-label">My modules</div>
+              <div className="browse-chip-row">
+
+                {enrolledModules.map((mod) => (
+                  <button
+                    key={mod.id}
+                    className={`browse-chip ${activeModuleCode === mod.code ? "browse-chip--active" : ""}`}
+                    onClick={() => handleModuleChip(mod.code)}
+                    title={mod.name}
+                  >
+                    {mod.code}
+                  </button>
+                ))}
                 <button
-                  key={filter.id}
-                  className={`browse-chip ${activeDateFilter === filter.id ? "browse-chip--active" : ""}`}
-                  onClick={() => setActiveDateFilter(filter.id)}
+                  className={`browse-chip ${!activeModuleCode && !searchTerm ? "browse-chip--active" : ""}`}
+                  onClick={handleClearFilters}
                 >
-                  {filter.label}
+                  All
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Availability filter chips */}
           <div className="browse-filter-group">
@@ -157,11 +206,14 @@ export default function BrowsePage() {
           {/* Result count */}
           <div className="browse-result-count">
             {visibleGroups.length} group{visibleGroups.length !== 1 ? "s" : ""} found
+            {activeModuleCode && (
+              <span className="browse-filter-active"> for {activeModuleCode}</span>
+            )}
           </div>
 
         </aside>
 
-        {/* RIGHT PANEL — Results */}
+        {/* RIGHT PANEL */}
         <main className="browse-right">
 
           {/* Loading state */}
@@ -172,11 +224,20 @@ export default function BrowsePage() {
             </div>
           )}
 
-          {/* Empty state — no results match the current filters */}
+          {/* Empty state where no results match the current filters */}
           {!loading && visibleGroups.length === 0 && (
             <div className="browse-empty">
               <p className="browse-empty-text">No study groups match your search.</p>
-              <p className="browse-empty-sub">Try a different module or clear your filters.</p>
+              <p className="browse-empty-sub">
+                {activeModuleCode
+                  ? `No groups for ${activeModuleCode} yet. Try a different module or view all.`
+                  : "Try a different search or clear your filters."}
+              </p>
+              {(activeModuleCode || searchTerm) && (
+                <button className="browse-clear-btn" onClick={handleClearFilters}>
+                  View all groups
+                </button>
+              )}
             </div>
           )}
 
@@ -185,7 +246,7 @@ export default function BrowsePage() {
             <div className="browse-results">
               {/* .map() renders one card per group in the array */}
               {visibleGroups.map((group) => {
-                const spotsLeft = group.max_members - group.current_members;
+                const spotsLeft = group.max_members - (group.current_members ?? 0);
                 const isFull = spotsLeft <= 0;
 
                 return (
@@ -193,7 +254,7 @@ export default function BrowsePage() {
 
                     <div className="browse-card-top">
                       <span className="browse-module-tag">{group.module_code}</span>
-                      {/* Ternary swaps badge style/text based on isFull */}
+
                       <span className={`browse-status-badge ${isFull ? "browse-status-badge--full" : "browse-status-badge--open"}`}>
                         {isFull ? "Full" : `${spotsLeft} spot${spotsLeft !== 1 ? "s" : ""} left`}
                       </span>
@@ -207,7 +268,13 @@ export default function BrowsePage() {
                       <span className="browse-meta-item">
                         <i className="ti ti-calendar" aria-hidden="true"></i>
                         {group.date_time
-                          ? new Date(group.date_time).toLocaleString()
+                          ? new Date(group.date_time).toLocaleString("en-ZA", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                           : "Date not set"}
                       </span>
                       <span className="browse-meta-item">
@@ -216,7 +283,7 @@ export default function BrowsePage() {
                       </span>
                       <span className="browse-meta-item">
                         <i className="ti ti-users" aria-hidden="true"></i>
-                        {group.current_members}/{group.max_members}
+                        {group.current_members ?? 0}/{group.max_members}
                       </span>
                     </div>
 
@@ -234,8 +301,8 @@ export default function BrowsePage() {
                         {joiningId === group.id
                           ? "Joining..."
                           : isFull
-                          ? "Full"
-                          : "Join group"}
+                            ? "Full"
+                            : "Join group"}
                       </button>
                     </div>
 

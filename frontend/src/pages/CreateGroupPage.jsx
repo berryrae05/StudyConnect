@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import Input from "../components/ui/Input";
+import API from "../services/api.js";
 import { getModules, getVenues } from "../services/adminService.js";
 import "./CreateGroupPage.css";
 
@@ -11,7 +11,7 @@ export default function CreateGroupPage() {
   const [moduleCode, setModuleCode] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [studyDate, setStudyDate] = useState(""); // date part e.g. 2025-05-12
+  const [studyDate, setStudyDate] = useState(""); // date part e.g. 2026-05-12
   const [studyTime, setStudyTime] = useState(""); // time part e.g. 14:00
   const [maxMembers, setMaxMembers] = useState(5);
 
@@ -118,18 +118,15 @@ export default function CreateGroupPage() {
     return valid;
   };
 
-  // ── SUBMIT ──────────────────────────────────────────────────
+  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
 
     try {
-      // Combine date and time into a single ISO datetime string
-      // Backend expects format: "2025-05-12T14:00:00"
       const dateTime = `${studyDate}T${studyTime}:00`;
 
-      // Build the request body matching GroupCreate schema exactly
       const payload = {
         module_code: moduleCode,
         description: description.trim() || null,
@@ -139,61 +136,28 @@ export default function CreateGroupPage() {
         created_by: user.id,
       };
 
-      // Get the JWT token saved during login
-      const token = localStorage.getItem("access_token");
-
-      // POST /groups — requires Authorization header
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/groups`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        // Read the error detail from the response body
-        const errorData = await response.json();
-        const detail = errorData?.detail;
-        let message = "Failed to create group. Please try again.";
-
-        if (typeof detail === "string") {
-          message = detail;
-        } else if (Array.isArray(detail)) {
-          message = detail.map((d) => d.msg).join(", ");
-        }
-
-        setErrors((prev) => ({ ...prev, general: message }));
-        return;
-      }
-
-      const newGroup = await response.json();
-      console.log("Group created:", newGroup);
-
-      // Redirect to dashboard after successful creation
+      const response = await API.post("/groups", payload);
+      console.log("Group created:", response.data);
       navigate("/dashboard");
 
     } catch (err) {
-      console.error("Create group error:", err);
-      setErrors((prev) => ({
-        ...prev,
-        general: "Something went wrong. Please check your connection.",
-      }));
+      const detail = err.response?.data?.detail;
+      let message = "Failed to create group. Please try again.";
+
+      if (typeof detail === "string") {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail.map((d) => d.msg).join(", ");
+      }
+
+      setErrors((prev) => ({ ...prev, general: message }));
     } finally {
-      // REACT: Always turn off loading whether success or failure
       setLoading(false);
     }
   };
 
-  // ── GUARD ───────────────────────────────────────────────────
-  // Do not render until user is loaded from localStorage
   if (!user) return null;
 
-  // ── JSX ─────────────────────────────────────────────────────
   return (
     <div className="cg-root">
 
@@ -219,8 +183,6 @@ export default function CreateGroupPage() {
         {/* Form card */}
         <div className="cg-card">
 
-          {/* General error banner */}
-          {/* REACT: Only renders if errors.general has a value */}
           {errors.general && (
             <div className="cg-error-banner">
               <i className="ti ti-alert-circle" aria-hidden="true"></i>
@@ -230,7 +192,7 @@ export default function CreateGroupPage() {
 
           <form onSubmit={handleSubmit} noValidate>
 
-            {/* ── MODULE ──────────────────────────────── */}
+            {/* MODULE */}
             <div className="cg-field">
               <label className="cg-label">
                 Module <span className="cg-required">*</span>
@@ -262,7 +224,7 @@ export default function CreateGroupPage() {
               )}
             </div>
 
-            {/* ── DESCRIPTION ─────────────────────────── */}
+            {/* DESCRIPTION */}
             <div className="cg-field">
               <label className="cg-label">
                 Description
@@ -280,7 +242,7 @@ export default function CreateGroupPage() {
               <span className="cg-char-count">{description.length}/500</span>
             </div>
 
-            {/* ── VENUE ───────────────────────────────── */}
+            {/* VENUE */}
             <div className="cg-field">
               <label className="cg-label">
                 Venue (on-campus only) <span className="cg-required">*</span>
@@ -296,7 +258,7 @@ export default function CreateGroupPage() {
                   }}
                 >
                   <option value="">Select a venue</option>
-                  {/* REACT: .map() renders one option per venue */}
+
                   {venues.map((venue) => (
                     <option key={venue.id} value={venue.name}>
                       {venue.name}
@@ -313,7 +275,7 @@ export default function CreateGroupPage() {
               )}
             </div>
 
-            {/* ── DATE AND TIME — side by side ────────── */}
+            {/* DATE AND TIME — side by side */}
             <div className="cg-row">
 
               {/* Date */}
@@ -370,7 +332,7 @@ export default function CreateGroupPage() {
 
             </div>
 
-            {/* ── MAX MEMBERS ─────────────────────────── */}
+            {/* MAX MEMBERS */}
             <div className="cg-field cg-field--narrow">
               <label className="cg-label">
                 Max participants <span className="cg-required">*</span>
@@ -398,7 +360,7 @@ export default function CreateGroupPage() {
               )}
             </div>
 
-            {/* ── SUBMIT ──────────────────────────────── */}
+            {/* SUBMIT */}
             <div className="cg-actions">
               <Link to="/dashboard" className="cg-cancel-btn">
                 Cancel

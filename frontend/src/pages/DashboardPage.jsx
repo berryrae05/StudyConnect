@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import { getMyCreatedGroups, getMyJoinedGroups, leaveGroup, deleteGroup } from "../services/groupService";
+import { deleteGroup } from "../services/groupService";
+import { getMyGroups } from "../services/profileService";
 import "./DashboardPage.css";
 
 const NAV_ITEMS = [
@@ -31,6 +32,7 @@ export default function DashboardPage() {
 
   // Data states
   const [myGroups, setMyGroups] = useState([]);
+  const [myJoinedGroups, setMyJoinedGroups] = useState([]);
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,11 +50,9 @@ export default function DashboardPage() {
 
     const loadData = async () => {
       try {
-        const created = await getMyCreatedGroups(user.id);
-        setMyGroups(created);
-
-        const joined = await getMyJoinedGroups(user.id);
-
+        const data = await getMyGroups();
+        setMyGroups(data.groups_created || []);
+        setMyJoinedGroups(data.groups_joined || []);
       } catch (error) {
         console.error("Failed to load groups:", error);
       } finally {
@@ -98,6 +98,7 @@ export default function DashboardPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     navigate("/login");
   };
@@ -160,6 +161,10 @@ export default function DashboardPage() {
           {/* Logout button pinned to the bottom of the left panel */}
           <div className="dash-left-footer">
             <div className="dash-left-divider"></div>
+            <Link to="/profile" className="dash-profile-link">
+              <i className="ti ti-user" aria-hidden="true"></i>
+              <span>My profile</span>
+            </Link>
             <button className="dash-logout-btn" onClick={handleLogout}>
               <i className="ti ti-logout" aria-hidden="true"></i>
               <span>Log out</span>
@@ -318,34 +323,44 @@ export default function DashboardPage() {
 
           <section id="section-joined" className="dash-section">
             <div className="dash-section-top">
-              <h2 className="dash-section-title">Groups I've requested to join</h2>
+              <h2 className="dash-section-title">Groups I've joined</h2>
               <Link to="/browse" className="dash-text-link">Browse more</Link>
             </div>
 
-            {myRequests.length === 0 ? (
+            {myJoinedGroups.length === 0 ? (
               <div className="dash-empty">
                 <i className="ti ti-search" style={{ fontSize: 28 }} aria-hidden="true"></i>
-                <p>You have not requested to join any groups yet.</p>
+                <p>You have not joined any groups yet.</p>
                 <Link to="/browse" className="dash-text-link">
                   Find a study group
                 </Link>
               </div>
             ) : (
               <div className="dash-cards">
-                {myRequests.map((req) => (
-                  <div key={req.id} className="dash-card">
+                {myJoinedGroups.map((group) => (
+                  <div key={group.id} className="dash-card">
                     <div className="dash-card-top">
-                      <span className="dash-module-tag">{req.module}</span>
-                      <span className={`dash-badge ${statusConfig[req.status]?.cls}`}>
-                        {statusConfig[req.status]?.label}
-                      </span>
+                      <span className="dash-module-tag">{group.module_code}</span>
                     </div>
-                    <h3 className="dash-card-title">{req.title}</h3>
+                    <h3 className="dash-card-title">
+                      {group.description || "Study Group"}
+                    </h3>
                     <div className="dash-card-meta">
                       <span>
                         <i className="ti ti-calendar" aria-hidden="true"></i>
-                        {req.date}
+                        {group.date_time
+                          ? new Date(group.date_time).toLocaleString()
+                          : "Date not set"}
                       </span>
+                      <span>
+                        <i className="ti ti-map-pin" aria-hidden="true"></i>
+                        {group.location || "Location not set"}
+                      </span>
+                    </div>
+                    <div className="dash-card-footer">
+                      <Link to={`/groups/${group.id}`} className="dash-card-view-link">
+                        View details
+                      </Link>
                     </div>
                   </div>
                 ))}
