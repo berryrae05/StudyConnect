@@ -37,3 +37,9 @@ class VenueResponse(BaseModel):
     capacity: int
     available: bool = Field(alias="is_available")
     created_at: datetime
+
+class VenueSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str 
