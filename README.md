@@ -407,8 +407,6 @@ MAIL_SSL_TLS=False
 
 ```
 
-> **Note:** Gmail users may need to use an App Password instead of their normal account password.
-
 ### Application Configuration
 
 For running StudyConnect on your machine:
