@@ -58,7 +58,7 @@ API.interceptors.response.use(
                 // Call refresh endpoint directly with axios (not API instance)
                 // to avoid triggering this interceptor again on a 401 refresh fail
                 const { data } = await axios.post(
-                    `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+                    `${import.meta.env.VITE_API_BASE_URL}auth/refresh`,
                     { refresh_token: refreshToken }
                 );
 

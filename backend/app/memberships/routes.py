@@ -9,6 +9,7 @@ from app.memberships.schema import MembersListResponse, MembershipResponse
 from app.memberships.service import join_group, leave_group, list_group_members
 from app.shared.dependencies import get_current_user, get_db
 from app.users.model import User
+from app.middleware.rate_limit import limiter
 
 router = APIRouter(prefix="/groups", tags=["Memberships"])
 
@@ -17,6 +18,7 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post("/{group_id}/join", response_model=MembershipResponse, status_code=201)
+@limiter.limit("20/minute")
 async def join_study_group(
     group_id: int,
     db: DBDependency,
@@ -27,6 +29,7 @@ async def join_study_group(
 
 
 @router.post("/{group_id}/leave", status_code=204)
+@limiter.limit("20/minute")
 async def leave_study_group(
     group_id: int,
     db: DBDependency,
@@ -37,7 +40,8 @@ async def leave_study_group(
 
 
 @router.get("/{group_id}/members", response_model=MembersListResponse)
-def get_group_members(group_id: int, db: DBDependency):
+@limiter.limit("60/minute")
+def get_group_members(group_id: int, db: DBDependency, request: Request,):
     return MembersListResponse(
         group_id=group_id,
         members=list_group_members(group_id, db),

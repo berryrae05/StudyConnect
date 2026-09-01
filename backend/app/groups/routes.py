@@ -16,7 +16,7 @@ from app.groups.service import (
 )
 from app.shared.dependencies import get_current_user, get_db
 from app.users.model import User
-
+from app.middleware.rate_limit import limiter
 
 router = APIRouter(
     prefix="/groups",
@@ -40,6 +40,7 @@ CurrentUser = Annotated[
     response_model=GroupResponse,
     status_code=201,
 )
+@limiter.limit("10/minute")
 def create_study_group(
     data: GroupCreate,
     db: DBDependency,
@@ -58,8 +59,10 @@ def create_study_group(
     "",
     response_model=list[GroupResponse],
 )
+@limiter.limit("60/minute")
 def get_groups(
     db: DBDependency,
+    request: Request,
     module_code: str | None = Query(
         default=None,
         max_length=64,
@@ -81,9 +84,11 @@ def get_groups(
     "/{group_id}",
     response_model=GroupResponse,
 )
+@limiter.limit("60/minute")
 def get_study_group(
     group_id: int,
     db: DBDependency,
+    request: Request,
 ):
     group = get_group(
         group_id,
@@ -97,6 +102,7 @@ def get_study_group(
     "/{group_id}",
     status_code=204,
 )
+@limiter.limit("10/minute")
 async def delete_study_group(
     group_id: int,
     db: DBDependency,
