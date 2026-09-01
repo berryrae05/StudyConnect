@@ -193,7 +193,7 @@ export default function GroupDetailPage() {
                   Date &amp; time
                 </div>
                 <div className="gd-info-value">
-                  {formatDateTime(group.date_time)}
+                  {formatDateTime(group.start_time)}
                 </div>
               </div>
 
@@ -203,7 +203,7 @@ export default function GroupDetailPage() {
                   Venue
                 </div>
                 <div className="gd-info-value">
-                  {group.location || "Not set"}
+                  {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
                 </div>
               </div>
 
@@ -311,7 +311,7 @@ export default function GroupDetailPage() {
                 </div>
                 <div className="gd-action-meta-item">
                   <span className="gd-action-meta-label">Location</span>
-                  <span className="gd-action-meta-value">{group.location || "TBC"}</span>
+                  <span className="gd-action-meta-value">{group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}</span>
                 </div>
               </div>
 

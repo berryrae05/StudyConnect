@@ -219,14 +219,17 @@ export default function DashboardPage() {
 
                       <span>
                         <i className="ti ti-calendar" aria-hidden="true"></i>
-                        {group.date_time
-                          ? new Date(group.date_time).toLocaleString()
+                        {group.start_time
+                          ? new Date(group.start_time).toLocaleString("en-ZA", {
+                            day: "numeric", month: "short", year: "numeric",
+                            hour: "2-digit", minute: "2-digit"
+                          })
                           : "Date not set"}
                       </span>
 
                       <span>
                         <i className="ti ti-map-pin" aria-hidden="true"></i>
-                        {group.location || "Location not set"}
+                        {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
                       </span>
 
                     </div>
@@ -348,13 +351,16 @@ export default function DashboardPage() {
                     <div className="dash-card-meta">
                       <span>
                         <i className="ti ti-calendar" aria-hidden="true"></i>
-                        {group.date_time
-                          ? new Date(group.date_time).toLocaleString()
+                        {group.start_time
+                          ? new Date(group.start_time).toLocaleString("en-ZA", {
+                            day: "numeric", month: "short", year: "numeric",
+                            hour: "2-digit", minute: "2-digit"
+                          })
                           : "Date not set"}
                       </span>
                       <span>
                         <i className="ti ti-map-pin" aria-hidden="true"></i>
-                        {group.location || "Location not set"}
+                        {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
                       </span>
                     </div>
                     <div className="dash-card-footer">
