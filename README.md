@@ -28,7 +28,6 @@ StudyConnect is a web-based platform designed to help university students find s
 - [Running the Frontend](#running-the-frontend)
 - [Running the Complete Application](#running-the-complete-application)
 - [Example Usage](#example-usage)
-- [Screenshots](#screenshots)
 - [Security](#security)
 - [Development Team](#development-team)
 
