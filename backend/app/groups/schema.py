@@ -4,6 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.venues.schema import VenueSummary
 
 class GroupCreate(BaseModel):
     """Fields the client sends when creating a group."""
@@ -39,6 +40,8 @@ class GroupResponse(BaseModel):
     description: str | None = None
 
     venue_id: int | None = None
+
+    venue: VenueSummary | None = None
 
     start_time: datetime | None = None
 

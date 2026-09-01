@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Literal
 
 from app.auth.utils import validate_password
+from app.venues.schema import VenueSummary
 
 # Base schema with common attributes
 class UserBase(BaseModel):
@@ -138,8 +139,10 @@ class GroupSummary(BaseModel):
     id: int
     module_code: str
     description: str | None
-    location: str | None
-    date_time: datetime | None
+    venue_id: int | None
+    venue: VenueSummary | None
+    start_time: datetime | None
+    end_time: datetime | None
     max_members: int
 
 class MyGroupsResponse(BaseModel):

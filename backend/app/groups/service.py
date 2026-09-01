@@ -24,6 +24,14 @@ def group_to_response(group: Group) -> dict:
         "module_code": group.module_code,
         "description": group.description,
         "venue_id": group.venue_id,
+        "venue": (
+            {
+                "id": group.venue_id,
+                "name": group.venue.name,
+            }
+            if group.venue
+            else None
+        ),
         "start_time": group.start_time,
         "end_time": group.end_time,
         "max_members": group.max_members,

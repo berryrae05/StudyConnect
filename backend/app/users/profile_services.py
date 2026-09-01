@@ -122,7 +122,7 @@ def unenrol_from_module(current_user: User, module_id: int, db: Session) -> Prof
     enrolment = (
         db.query(UserModule)
         .filter(
-            UserModule.user_id == current_user,
+            UserModule.user_id == current_user.id,
             UserModule.module_id == module_id,
         )
         .first()

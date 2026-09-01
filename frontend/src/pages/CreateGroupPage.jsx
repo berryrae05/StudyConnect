@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import Input from "../components/ui/Input";
+import API from "../services/api.js";
 import { getModules, getVenues } from "../services/adminService.js";
 import "./CreateGroupPage.css";
 
@@ -10,9 +10,10 @@ export default function CreateGroupPage() {
 
   const [moduleCode, setModuleCode] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [studyDate, setStudyDate] = useState(""); // date part e.g. 2025-05-12
-  const [studyTime, setStudyTime] = useState(""); // time part e.g. 14:00
+  const [venueId, setVenueId] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [maxMembers, setMaxMembers] = useState(5);
 
   // User state tracks the logged-in user, which is required to create a group
@@ -25,9 +26,10 @@ export default function CreateGroupPage() {
   // Errors state tracks validation errors for each field and a general error message
   const [errors, setErrors] = useState({
     moduleCode: "",
-    location: "",
-    studyDate: "",
-    studyTime: "",
+    venueId: "",
+    startDate: "",
+    startTime: "",
+    endTime: "",
     maxMembers: "",
     general: "",
   });
@@ -67,9 +69,10 @@ export default function CreateGroupPage() {
   const validate = () => {
     const newErrors = {
       moduleCode: "",
-      location: "",
-      studyDate: "",
-      studyTime: "",
+      venueId: "",
+      startDate: "",
+      startTime: "",
+      endTime: "",
       maxMembers: "",
       general: "",
     };
@@ -80,27 +83,34 @@ export default function CreateGroupPage() {
       valid = false;
     }
 
-    if (!location) {
-      newErrors.location = "Please select a venue";
+    if (!venueId) {
+      newErrors.venueId = "Please select a venue";
       valid = false;
     }
 
-    if (!studyDate) {
-      newErrors.studyDate = "Please select a date";
+    if (!startDate) {
+      newErrors.startDate = "Please select a date";
       valid = false;
     } else {
-      // Make sure the date is not in the past
-      const selected = new Date(studyDate);
+      const selected = new Date(startDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selected < today) {
-        newErrors.studyDate = "Date cannot be in the past";
+        newErrors.startDate = "Date cannot be in the past";
         valid = false;
       }
     }
 
-    if (!studyTime) {
-      newErrors.studyTime = "Please select a time";
+    if (!startTime) {
+      newErrors.startTime = "Please select a start time";
+      valid = false;
+    }
+
+    if (!endTime) {
+      newErrors.endTime = "Please select an end time";
+      valid = false;
+    } else if (startTime && endTime <= startTime) {
+      newErrors.endTime = "End time must be after start time";
       valid = false;
     }
 
@@ -118,82 +128,46 @@ export default function CreateGroupPage() {
     return valid;
   };
 
-  // ── SUBMIT ──────────────────────────────────────────────────
+  // SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
 
     try {
-      // Combine date and time into a single ISO datetime string
-      // Backend expects format: "2025-05-12T14:00:00"
-      const dateTime = `${studyDate}T${studyTime}:00`;
+      const dateTime = `${startDate}T${startTime}:00`;
 
-      // Build the request body matching GroupCreate schema exactly
       const payload = {
         module_code: moduleCode,
         description: description.trim() || null,
-        location: location,
-        date_time: dateTime,
+        venue_id: Number(venueId),
+        start_time: `${startDate}T${startTime}:00`,
+        end_time: `${startDate}T${endTime}:00`,
         max_members: Number(maxMembers),
-        created_by: user.id,
       };
 
-      // Get the JWT token saved during login
-      const token = localStorage.getItem("access_token");
-
-      // POST /groups — requires Authorization header
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/groups`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        // Read the error detail from the response body
-        const errorData = await response.json();
-        const detail = errorData?.detail;
-        let message = "Failed to create group. Please try again.";
-
-        if (typeof detail === "string") {
-          message = detail;
-        } else if (Array.isArray(detail)) {
-          message = detail.map((d) => d.msg).join(", ");
-        }
-
-        setErrors((prev) => ({ ...prev, general: message }));
-        return;
-      }
-
-      const newGroup = await response.json();
-      console.log("Group created:", newGroup);
-
-      // Redirect to dashboard after successful creation
+      const response = await API.post("/groups", payload);
+      console.log("Group created:", response.data);
       navigate("/dashboard");
 
     } catch (err) {
-      console.error("Create group error:", err);
-      setErrors((prev) => ({
-        ...prev,
-        general: "Something went wrong. Please check your connection.",
-      }));
+      const detail = err.response?.data?.detail;
+      let message = "Failed to create group. Please try again.";
+
+      if (typeof detail === "string") {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail.map((d) => d.msg).join(", ");
+      }
+
+      setErrors((prev) => ({ ...prev, general: message }));
     } finally {
-      // REACT: Always turn off loading whether success or failure
       setLoading(false);
     }
   };
 
-  // ── GUARD ───────────────────────────────────────────────────
-  // Do not render until user is loaded from localStorage
   if (!user) return null;
 
-  // ── JSX ─────────────────────────────────────────────────────
   return (
     <div className="cg-root">
 
@@ -219,8 +193,6 @@ export default function CreateGroupPage() {
         {/* Form card */}
         <div className="cg-card">
 
-          {/* General error banner */}
-          {/* REACT: Only renders if errors.general has a value */}
           {errors.general && (
             <div className="cg-error-banner">
               <i className="ti ti-alert-circle" aria-hidden="true"></i>
@@ -230,7 +202,7 @@ export default function CreateGroupPage() {
 
           <form onSubmit={handleSubmit} noValidate>
 
-            {/* ── MODULE ──────────────────────────────── */}
+            {/* MODULE */}
             <div className="cg-field">
               <label className="cg-label">
                 Module <span className="cg-required">*</span>
@@ -262,7 +234,7 @@ export default function CreateGroupPage() {
               )}
             </div>
 
-            {/* ── DESCRIPTION ─────────────────────────── */}
+            {/* DESCRIPTION */}
             <div className="cg-field">
               <label className="cg-label">
                 Description
@@ -280,40 +252,40 @@ export default function CreateGroupPage() {
               <span className="cg-char-count">{description.length}/500</span>
             </div>
 
-            {/* ── VENUE ───────────────────────────────── */}
+            {/* VENUE */}
             <div className="cg-field">
               <label className="cg-label">
                 Venue (on-campus only) <span className="cg-required">*</span>
               </label>
-              <div className={`cg-select-wrap ${errors.location ? "cg-select-wrap--error" : ""}`}>
+              <div className={`cg-select-wrap ${errors.venueId ? "cg-select-wrap--error" : ""}`}>
                 <i className="ti ti-map-pin cg-select-icon" aria-hidden="true"></i>
                 <select
                   className="cg-select"
-                  value={location}
+                  value={venueId}
                   onChange={(e) => {
-                    setLocation(e.target.value);
-                    setErrors((prev) => ({ ...prev, location: "" }));
+                    setVenueId(e.target.value);
+                    setErrors((prev) => ({ ...prev, venueId: "" }));
                   }}
                 >
                   <option value="">Select a venue</option>
-                  {/* REACT: .map() renders one option per venue */}
+
                   {venues.map((venue) => (
-                    <option key={venue.id} value={venue.name}>
+                    <option key={venue.id} value={venue.id}>
                       {venue.name}
                     </option>
                   ))}
                 </select>
                 <i className="ti ti-chevron-down cg-select-arrow" aria-hidden="true"></i>
               </div>
-              {errors.location && (
+              {errors.venueId && (
                 <p className="cg-field-error">
                   <i className="ti ti-alert-circle" aria-hidden="true"></i>
-                  {errors.location}
+                  {errors.venueId}
                 </p>
               )}
             </div>
 
-            {/* ── DATE AND TIME — side by side ────────── */}
+            {/* DATE AND TIME */}
             <div className="cg-row">
 
               {/* Date */}
@@ -321,56 +293,81 @@ export default function CreateGroupPage() {
                 <label className="cg-label">
                   Date <span className="cg-required">*</span>
                 </label>
-                <div className={`cg-input-wrap ${errors.studyDate ? "cg-input-wrap--error" : ""}`}>
+                <div className={`cg-input-wrap ${errors.startDate ? "cg-input-wrap--error" : ""}`}>
                   <i className="ti ti-calendar cg-input-icon" aria-hidden="true"></i>
                   <input
                     className="cg-input"
                     type="date"
-                    value={studyDate}
+                    value={startDate}
                     onChange={(e) => {
-                      setStudyDate(e.target.value);
-                      setErrors((prev) => ({ ...prev, studyDate: "" }));
+                      setStartDate(e.target.value);
+                      setErrors((prev) => ({ ...prev, startDate: "" }));
                     }}
                     // Prevent selecting dates in the past
                     min={new Date().toISOString().split("T")[0]}
                   />
                 </div>
-                {errors.studyDate && (
+                {errors.startDate && (
                   <p className="cg-field-error">
                     <i className="ti ti-alert-circle" aria-hidden="true"></i>
-                    {errors.studyDate}
+                    {errors.startDate}
                   </p>
                 )}
               </div>
 
-              {/* Time */}
+              {/* Start Time */}
               <div className="cg-field">
                 <label className="cg-label">
-                  Time <span className="cg-required">*</span>
+                  Start Time <span className="cg-required">*</span>
                 </label>
-                <div className={`cg-input-wrap ${errors.studyTime ? "cg-input-wrap--error" : ""}`}>
+                <div className={`cg-input-wrap ${errors.startTime ? "cg-input-wrap--error" : ""}`}>
                   <i className="ti ti-clock cg-input-icon" aria-hidden="true"></i>
                   <input
                     className="cg-input"
                     type="time"
-                    value={studyTime}
+                    value={startTime}
                     onChange={(e) => {
-                      setStudyTime(e.target.value);
-                      setErrors((prev) => ({ ...prev, studyTime: "" }));
+                      setStartTime(e.target.value);
+                      setErrors((prev) => ({ ...prev, startTime: "" }));
                     }}
                   />
                 </div>
-                {errors.studyTime && (
+                {errors.startTime && (
                   <p className="cg-field-error">
                     <i className="ti ti-alert-circle" aria-hidden="true"></i>
-                    {errors.studyTime}
+                    {errors.startTime}
                   </p>
                 )}
               </div>
 
             </div>
 
-            {/* ── MAX MEMBERS ─────────────────────────── */}
+            {/* End time */}
+            <div className="cg-field">
+              <label className="cg-label">
+                End Time <span className="cg-required">*</span>
+              </label>
+              <div className={`cg-input-wrap ${errors.endTime ? "cg-input-wrap--error" : ""}`}>
+                <i className="ti ti-clock cg-input-icon" aria-hidden="true"></i>
+                <input
+                  className="cg-input"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => {
+                    setEndTime(e.target.value);
+                    setErrors((prev) => ({ ...prev, endTime: "" }));
+                  }}
+                />
+              </div>
+              {errors.endTime && (
+                <p className="cg-field-error">
+                  <i className="ti ti-alert-circle" aria-hidden="true"></i>
+                  {errors.endTime}
+                </p>
+              )}
+            </div>
+            
+            {/* MAX MEMBERS */}
             <div className="cg-field cg-field--narrow">
               <label className="cg-label">
                 Max participants <span className="cg-required">*</span>
@@ -398,7 +395,7 @@ export default function CreateGroupPage() {
               )}
             </div>
 
-            {/* ── SUBMIT ──────────────────────────────── */}
+            {/* SUBMIT */}
             <div className="cg-actions">
               <Link to="/dashboard" className="cg-cancel-btn">
                 Cancel

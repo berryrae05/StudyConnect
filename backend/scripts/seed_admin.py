@@ -33,12 +33,22 @@ def seed_admin(email: str, password: str, full_name: str = "Full Name"):
         db.commit()
         print(f"Created admin {email} (is={admin.id})")
 
+    except Exception as e:
+        db.rollback()
+        print(f"Error creating administrator: {e}")
+
     finally:
         db.close()
 
 if __name__ == "__main__":
+    print("=== StudyConnect Admin Setup ===")
+
+    full_name = input("Enter admin full name: ").strip()
+    email = input("Enter admin email: ").strip()
+    password = input("Enter admin password: ")
+
     seed_admin(
-        full_name="Andisiwe Admin",
-        email="4334941@myuwc.ac.za",
-        password="TestPassword@28"
+        full_name=full_name,
+        email=email,
+        password=password,
     )

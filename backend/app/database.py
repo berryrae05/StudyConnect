@@ -14,6 +14,7 @@ Base = declarative_base()
 
 # Import models so SQLAlchemy registers relationships
 from app.users.model import User
+from app.users.model import UserModule
 from app.groups.model import Group
 from app.memberships.model import Membership
 from app.auth.token_model import RefreshToken
