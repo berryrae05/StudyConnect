@@ -70,7 +70,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
     return JSONResponse(
         status_code=500,
-        content={"detail": "An unexpected error occurred. "}
+        content={"detail": "An unexpected error occured. "}
     )
 
 # Routers - all under api/v1
