@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { listGroups, joinGroup } from "../services/groupService";
 import { getProfile } from "../services/profileService";
+import { listPublicVenues } from "../services/adminService";
 import "./BrowsePage.css";
 
 const DATE_FILTERS = [
@@ -31,7 +32,7 @@ export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeDateFilter, setActiveDateFilter] = useState("any");
   const [activeAvailability, setActiveAvailability] = useState("open");
-
+  const [venues, setVenues] = useState({});
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [joiningId, setJoiningId] = useState(null); // tracks which group is mid-join
@@ -50,19 +51,29 @@ export default function BrowsePage() {
 
   const loadProfile = async () => {
     try {
-      const profileData = await getProfile();
+      const [profileData, venuesData] = await Promise.all([
+        getProfile(),
+        listPublicVenues(),
+      ]);
+
       const modules = profileData.enrolled_modules || [];
       setEnrolledModules(modules);
+
       if (modules.length > 0) {
-        setActiveModuleCode(modules[0].module_code);
+        setActiveModuleCode(modules[0].code); // fixed field name
       }
+
+      // Create a mapping of venue IDs to names for easy lookup
+      const venueMap = {};
+      venuesData.forEach((v) => { venueMap[v.id] = v.name; });
+      setVenues(venueMap);
+
     } catch (err) {
       console.error("Failed to load profile:", err);
     }
   };
 
-  // Fetch groups whenever the search term or date filter changes. This is a side effect
-  // that runs after the component renders, and it updates the `groups` state with the fetched data.
+  // Fetch groups whenever the active module or search term changes
   useEffect(() => {
     fetchGroups();
   }, [activeModuleCode, searchTerm]);
@@ -279,7 +290,9 @@ export default function BrowsePage() {
                       </span>
                       <span className="browse-meta-item">
                         <i className="ti ti-map-pin" aria-hidden="true"></i>
-                        {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
+                        {group.venue_id
+                          ? (venues[group.venue_id] || `Venue #${group.venue_id}`)
+                          : "Venue not set"}
                       </span>
                       <span className="browse-meta-item">
                         <i className="ti ti-users" aria-hidden="true"></i>

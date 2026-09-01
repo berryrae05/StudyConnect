@@ -38,7 +38,7 @@ export default function DashboardPage() {
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingGroupId, setDeletingGroupId] = useState(null);
-  const [venues, setVenues] = useState([]);
+  const [venues, setVenues] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,9 +51,17 @@ export default function DashboardPage() {
 
     const loadData = async () => {
       try {
-        const data = await getMyGroups();
-        setMyGroups(data.groups_created || []);
-        setMyJoinedGroups(data.groups_joined || []);
+        const [groupData, venuesData] = await Promise.all([
+          getMyGroups(),
+          listPublicVenues(),
+        ]);
+        setMyGroups(groupData.groups_created || []);
+        setMyJoinedGroups(groupData.groups_joined || []);
+
+        // Map venue IDs to names for easy lookup
+        const venueMap = {};
+        venuesData.forEach((v) => { venueMap[v.id] = v.name; });
+        setVenues(venueMap);
       } catch (error) {
         console.error("Failed to load groups:", error);
       } finally {

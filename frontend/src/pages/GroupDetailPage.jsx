@@ -64,21 +64,36 @@ export default function GroupDetailPage() {
   const fetchGroup = async () => {
     setLoading(true);
     setError("");
+
     try {
-      const data = await getGroup(groupId);
-      setGroup(data);
+      const [groupData, membersData, venuesData] = await Promise.all([
+        getGroup(groupId),
+        getGroupMembers(groupId),
+        listPublicVenues(),
+      ]);
 
-      const membersData = await getGroupMembers(groupId);
+      setGroup(groupData);
 
-      setMemberCount(membersData.members.length);
+      setMemberCount(membersData.members?.length || 0);
 
       const currentUser = JSON.parse(localStorage.getItem("user"));
 
       setIsMember(
-        membersData.members.includes(currentUser.id)
+        membersData.members?.includes(currentUser.id) || false
       );
+
+      // Create a lookup: venue ID → venue name
+      const venueMap = {};
+
+      venuesData.forEach((venue) => {
+        venueMap[venue.id] = venue.name;
+      });
+
+      setVenues(venueMap);
+
     } catch (err) {
       const status = err.response?.status;
+
       if (status === 404) {
         setError("This study group does not exist or has been removed.");
       } else {
@@ -206,7 +221,9 @@ export default function GroupDetailPage() {
                   Venue
                 </div>
                 <div className="gd-info-value">
-                  {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
+                  {group.venue_id
+                    ? venues[group.venue_id] || `Venue #${group.venue_id}`
+                    : "Venue not set"}
                 </div>
               </div>
 
@@ -314,7 +331,9 @@ export default function GroupDetailPage() {
                 </div>
                 <div className="gd-action-meta-item">
                   <span className="gd-action-meta-label">Location</span>
-                  <span className="gd-action-meta-value">{group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}</span>
+                  <span className="gd-action-meta-value">{group.venue_id
+                    ? venues[group.venue_id] || `Venue #${group.venue_id}`
+                    : "Venue not set"}</span>
                 </div>
               </div>
 
