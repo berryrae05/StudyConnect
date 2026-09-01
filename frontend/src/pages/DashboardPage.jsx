@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { deleteGroup } from "../services/groupService";
 import { getMyGroups } from "../services/profileService";
+import { listPublicVenues } from "../services/adminService";
 import "./DashboardPage.css";
 
 const NAV_ITEMS = [
@@ -37,7 +38,7 @@ export default function DashboardPage() {
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingGroupId, setDeletingGroupId] = useState(null);
-
+  const [venues, setVenues] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -229,7 +230,7 @@ export default function DashboardPage() {
 
                       <span>
                         <i className="ti ti-map-pin" aria-hidden="true"></i>
-                        {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
+                        {group.venue_id ? (venues[group.venue_id] || `Venue #${group.venue_id}`) : "Venue not set"}
                       </span>
 
                     </div>
@@ -360,7 +361,7 @@ export default function DashboardPage() {
                       </span>
                       <span>
                         <i className="ti ti-map-pin" aria-hidden="true"></i>
-                        {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
+                        {group.venue_id ? (venues[group.venue_id] || `Venue #${group.venue_id}`) : "Venue not set"}
                       </span>
                     </div>
                     <div className="dash-card-footer">

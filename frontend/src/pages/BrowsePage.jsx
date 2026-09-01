@@ -267,8 +267,8 @@ export default function BrowsePage() {
                     <div className="browse-card-meta">
                       <span className="browse-meta-item">
                         <i className="ti ti-calendar" aria-hidden="true"></i>
-                        {group.date_time
-                          ? new Date(group.date_time).toLocaleString("en-ZA", {
+                        {group.start_time
+                          ? new Date(group.start_time).toLocaleString("en-ZA", {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
@@ -279,7 +279,7 @@ export default function BrowsePage() {
                       </span>
                       <span className="browse-meta-item">
                         <i className="ti ti-map-pin" aria-hidden="true"></i>
-                        {group.location || "Location not set"}
+                        {group.venue_id ? `Venue #${group.venue_id}` : "Venue not set"}
                       </span>
                       <span className="browse-meta-item">
                         <i className="ti ti-users" aria-hidden="true"></i>

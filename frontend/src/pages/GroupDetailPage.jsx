@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { getGroup, getGroupMembers, joinGroup, leaveGroup } from "../services/groupService";
+import { listPublicVenues } from "../services/adminService";
 import "./GroupDetailPage.css";
 
 const formatDateTime = (isoString) => {
@@ -44,6 +45,8 @@ export default function GroupDetailPage() {
   const [actionError, setActionError] = useState("");
 
   const [memberCount, setMemberCount] = useState(0);
+
+  const [venues, setVenues] = useState({});
 
   // It fetches the group details and membership status when the component mounts or when the groupId changes.
   useEffect(() => {
