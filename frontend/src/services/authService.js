@@ -27,6 +27,12 @@ export const verifyEmail = async (token) => {
   return response.data;
 };
 
+// RESEND EMAIL VERIFICATION
+export const resendVerification = async (email) => {
+  const response = await API.post("/auth/resend-verification", { email });
+  return response.data;
+};
+
 // FORGOT PASSWORD
 export const forgotPassword = async ({ email }) => {
   const response = await API.post("/auth/forgot-password", {
