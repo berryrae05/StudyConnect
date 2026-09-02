@@ -319,7 +319,7 @@ Copy-Item .env.example .env
 
 Open `backend/.env` and update the required values.
 
-### Database Configuration
+#### Database Configuration
 
 Configure the MySQL connection:
 
@@ -339,7 +339,7 @@ DB_NAME=studyconnect_db
 
 Update the values to match your local MySQL installation.
 
-### JWT Configuration
+#### JWT Configuration
 
 Replace the default secret key with a secure random value:
 
@@ -353,7 +353,7 @@ A secure key can be generated using:
 
 ```bash
 
-python -c "import secrets; print (secrets.token_urlsafe(32))"
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 ```
 
@@ -370,12 +370,12 @@ The remaining JWT settings can normally remain unchanged when running the provid
 ```env
 
 ALGORITHM=HS256
-
-ACCESS_TOKEN_EXPIRE_DAYS=7
+ACCESS_TOKEN_EXPIRE_MINUTES=15
+REFRESH_TOKEN_EXPIRE_DAYS=7
 
 ```
 
-### Email Configuration
+#### Email Configuration
 
 Email functionality requires valid SMTP credentials.
 
@@ -407,7 +407,7 @@ MAIL_SSL_TLS=False
 
 ```
 
-### Application Configuration
+#### Application Configuration
 
 For running StudyConnect on your machine:
 
@@ -419,7 +419,7 @@ ENVIRONMENT=development
 
 ```
 
-### Security Configuration
+#### Security Configuration
 
 For running StudyConnect on your machine:
 
@@ -433,9 +433,9 @@ LOGIN_LOCKOUT_MINUTES=15
 
 ```
 
-HSTS should only be enabled when deploying the application using HTTPS.
+HSTS is disabled for the development environment
 
-### Allowed Email Domains
+#### Allowed Email Domains
 
 The default allowed email domains are:
 
@@ -549,7 +549,7 @@ http://localhost:8000/api/v1/
 
 ```
 
-When running in the development environment, interactive API documentation is also available at:
+When running in the development environment, interactive API documentation is also available:
 
 ```text
 
@@ -773,16 +773,16 @@ StudyConnect implements several security measures to help protect user accounts 
 
 ## Development Team
 
-StudyConnect was developed as a collaborative university software engineering project.
+StudyConnect was developed as part of the 100 Days of Code/Leadership Program.
 
 **Team Members:**
 
-* Andiswe
+* **Andiswe** - Frontend Developer
 
-* Thespo
+* **Thespo** - Frontend Developer
 
-* Constance
+* **Constance** - Backend Developer
 
-* Beredine
+* **Beredine** - Backend Developer
 
 ---
